@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>한별·한솔 학습 체크표</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+:root {
+  --hb: #1A237E;
+  --hb-light: #E8EAF6;
+  --hb-mid: #3949AB;
+  --hs: #1B5E20;
+  --hs-light: #E8F5E9;
+  --hs-mid: #388E3C;
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --border: rgba(0,0,0,0.08);
+  --text: #1A1A2E;
+  --text2: #6B7280;
+  --text3: #9CA3AF;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── 헤더 ── */
+.header {
+  padding: 52px 20px 20px;
+  padding-top: max(52px, calc(44px + env(safe-area-inset-top)));
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--hdr-color, var(--hb));
+  transition: background 0.35s ease;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -20px; right: -20px;
+  height: 60px;
+  background: var(--hdr-color, var(--hb));
+  border-radius: 0 0 50% 50%;
+  transition: background 0.35s ease;
+}
+.header-inner { position: relative; z-index: 1; }
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.header-title { font-size: 18px; font-weight: 700; color: #fff; }
+.header-date { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+/* 아이 전환 버튼 */
+.kid-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+.kid-btn {
+  padding: 10px 0;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  text-align: center;
+}
+.kid-btn.on {
+  background: #fff;
+  border-color: #fff;
+  color: var(--hdr-color, var(--hb));
+  font-weight: 700;
+}
+
+/* ── 탭 바 ── */
+.tab-bar {
+  display: flex;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 var(--border);
+}
+.tab {
+  flex: 1;
+  padding: 13px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2.5px solid transparent;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.tab.on { color: var(--accent, var(--hb)); border-bottom-color: var(--accent, var(--hb)); }
+
+/* ── 페이지 ── */
+.page { display: none; padding: 16px; }
+.page.on { display: block; }
+
+/* ── 요약 카드 ── */
+.summary-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.summary-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.summary-total { font-size: 34px; font-weight: 700; color: var(--text); line-height: 1; }
+.summary-unit { font-size: 16px; font-weight: 400; color: var(--text2); margin-left: 2px; }
+.goal-bar-wrap {
+  height: 6px;
+  background: #F0F0F0;
+  border-radius: 3px;
+  margin: 12px 0 10px;
+  overflow: hidden;
+}
+.goal-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  background: var(--accent, var(--hb));
+}
+.praise {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+/* ── 과목 카드 ── */
+.scard {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.scard-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.scard-left { display: flex; align-items: center; gap: 10px; }
+.scard-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.scard-name { font-size: 15px; font-weight: 600; color: var(--text); }
+.scard-right { display: flex; align-items: center; gap: 8px; }
+.scard-mins { font-size: 13px; font-weight: 600; }
+.scard-arrow {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3);
+  font-size: 11px;
+  transition: transform 0.2s;
+}
+.scard-arrow.open { transform: rotate(180deg); }
+
+.scard-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.time-label { font-size: 12px; color: var(--text2); width: 26px; flex-shrink: 0; }
+.time-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  -webkit-appearance: none;
+}
+.time-input:focus { border-color: var(--accent, var(--hb)); }
+.time-mins {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.memo-input {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  height: 56px;
+  outline: none;
+  line-height: 1.5;
+}
+.memo-input:focus { border-color: var(--accent, var(--hb)); }
+.chk-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.chk-btn.done { background: #E8F5E9; color: #2E7D32; }
+.chk-btn.undone { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+
+/* ── 저장 버튼 ── */
+.save-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--accent, var(--hb));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+  letter-spacing: 0.3px;
+}
+.save-btn:active { opacity: 0.85; }
+.save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.save-hint { font-size: 12px; color: var(--text3); text-align: center; margin-top: 8px; min-height: 18px; }
+
+/* ── 달력 ── */
+.cal-nav-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-nav {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+}
+.cal-month-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow {
+  font-size: 11px; font-weight: 600;
+  color: var(--text3);
+  text-align: center; padding: 4px 0;
+}
+.cal-dow:first-child { color: #E53935; }
+.cal-dow:last-child { color: #1E88E5; }
+.cal-day {
+  aspect-ratio: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: 10px;
+  font-size: 13px; font-weight: 500;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  gap: 2px;
+}
+.cal-day.empty { background: transparent; border: none; }
+.cal-day.today { border: 2px solid var(--accent, var(--hb)); color: var(--accent, var(--hb)); font-weight: 700; }
+.cal-day.has-data { background: #E8F5E9; border-color: #A5D6A7; }
+.cal-day.sun { color: #E53935; }
+.cal-day.sat { color: #1E88E5; }
+.cal-day.sun.today, .cal-day.sat.today { color: var(--accent, var(--hb)); }
+.cal-min { font-size: 9px; color: #388E3C; font-weight: 600; }
+
+/* ── 통계 ── */
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.stat-card-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 14px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 13px; color: var(--text2); width: 30px; flex-shrink: 0; }
+.bar-wrap { flex: 1; height: 8px; background: #F0F0F0; border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.bar-val { font-size: 12px; color: var(--text2); width: 50px; text-align: right; flex-shrink: 0; }
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.metric {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.metric-val { font-size: 22px; font-weight: 700; color: var(--text); }
+.metric-unit { font-size: 12px; font-weight: 400; color: var(--text2); margin-left: 2px; }
+
+/* ── 설정 ── */
+.setup-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.setup-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.setup-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
+.step-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-light, var(--hb-light));
+  color: var(--accent, var(--hb));
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-text { font-size: 13px; color: var(--text2); line-height: 1.65; flex: 1; }
+.step-text code {
+  background: var(--bg);
+  padding: 1px 6px; border-radius: 5px;
+  font-size: 12px; color: var(--text);
+  font-family: 'Courier New', monospace;
+}
+.code-block {
+  background: #1E1E2E;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  color: #CDD6F4;
+  line-height: 1.7;
+  white-space: pre;
+  overflow-x: auto;
+  margin-bottom: 14px;
+}
+.copy-btn {
+  width: 100%;
+  padding: 11px;
+  background: #1E1E2E;
+  color: #CDD6F4;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 14px;
+  transition: background 0.15s;
+}
+.copy-btn:active { background: #2A2A3E; }
+.field-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.field-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 10px;
+}
+.field-input:focus { border-color: var(--accent, var(--hb)); }
+.save-setup-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent, var(--hb));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.save-setup-btn:active { opacity: 0.85; }
+.conn-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.conn-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.goal-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.goal-row label { font-size: 14px; color: var(--text); flex: 1; }
+.goal-input {
+  width: 80px; padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px; font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+}
+.goal-save-btn {
+  padding: 9px 16px;
+  background: var(--accent, var(--hb));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.hint-text { font-size: 12px; color: var(--text3); line-height: 1.6; margin-top: 4px; }
+.danger-btn {
+  width: 100%; padding: 12px;
+  background: transparent;
+  border: 1px solid #FFCDD2;
+  border-radius: var(--radius-sm);
+  color: #C62828;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="mainHeader">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-title">학습 체크표</div>
+        <div class="header-date" id="hdrDate"></div>
+      </div>
+    </div>
+    <div class="kid-switch">
+      <button class="kid-btn on" id="kbtn0" onclick="switchKid(0)">한별 (중1)</button>
+      <button class="kid-btn" id="kbtn1" onclick="switchKid(1)">한솔 (초3)</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab on" onclick="gotoTab('today',this)">오늘 기록</button>
+  <button class="tab" onclick="gotoTab('cal',this)">달력</button>
+  <button class="tab" onclick="gotoTab('stats',this)">통계</button>
+  <button class="tab" onclick="gotoTab('setup',this)">설정</button>
+</div>
+
+<!-- 오늘 기록 -->
+<div class="page on" id="page-today">
+  <div class="summary-card">
+    <div class="summary-label">오늘 총 공부시간</div>
+    <div><span class="summary-total" id="totalMin">0</span><span class="summary-unit">분</span></div>
+    <div class="goal-bar-wrap"><div class="goal-bar" id="goalBar" style="width:0%"></div></div>
+    <div class="praise" id="praiseMsg">과목 카드를 열어 시간을 입력해보세요!</div>
+  </div>
+  <div id="subjCards"></div>
+  <button class="save-btn" id="syncBtn" onclick="syncToSheet()">구글 시트에 저장</button>
+  <div class="save-hint" id="syncStatus"></div>
+</div>
+
+<!-- 달력 -->
+<div class="page" id="page-cal">
+  <div class="cal-nav-row">
+    <button class="cal-nav" onclick="changeMonth(-1)">◀</button>
+    <span class="cal-month-title" id="calTitle"></span>
+    <button class="cal-nav" onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<!-- 통계 -->
+<div class="page" id="page-stats">
+  <div class="stat-card">
+    <div class="stat-card-title" id="statTtl">이번 달 과목별 공부시간</div>
+    <div id="statBars"></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-title">이번 달 현황</div>
+    <div class="metric-grid" id="metricGrid"></div>
+  </div>
+</div>
+
+<!-- 설정 -->
+<div class="page" id="page-setup">
+  <div class="setup-card">
+    <div class="setup-title">구글 시트 연동 설정</div>
+    <div class="setup-desc">한 번만 설정하면 한별·한솔 기록이 구글 시트에 자동 저장돼요.</div>
+
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text">구글 시트를 새로 만들고 URL에서 시트 ID를 복사해 두세요</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text">구글 시트 상단 메뉴 → <code>확장 프로그램</code> → <code>Apps Script</code> 클릭</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text">기존 코드 전체 삭제 후 아래 코드 붙여넣기 후 저장</div>
+    </div>
+
+    <div class="code-block">function doPost(e){
+  var d=JSON.parse(e.postData.contents);
+  var ss=SpreadsheetApp.openById(d.sheetId);
+  var sname=d.kid+'_'+d.month+'월';
+  var sh=ss.getSheetByName(sname)
+        ||ss.insertSheet(sname);
+  if(sh.getLastRow()===0)
+    sh.appendRow(
+      ['날짜','과목','시작','종료','분','메모']);
+  d.rows.forEach(function(r){sh.appendRow(r);});
+  return ContentService
+    .createTextOutput('ok');
+}</div>
+    <button class="copy-btn" onclick="copyCode()">📋 코드 복사</button>
+
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-text"><code>배포</code> → <code>새 배포</code> → 유형: <code>웹 앱</code> → 액세스: <code>모든 사용자</code> → 배포 → URL 복사</div>
+    </div>
+
+    <div class="field-label">웹 앱 URL</div>
+    <input class="field-input" id="apiUrl" placeholder="https://script.google.com/macros/s/...">
+    <div class="field-label">구글 시트 ID</div>
+    <input class="field-input" id="sheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+    <button class="save-setup-btn" onclick="saveSetup()">저장 및 연결</button>
+    <div class="conn-status" id="connStatus">
+      <div class="conn-dot" style="background:#D1D5DB"></div>
+      <span>연결 안 됨</span>
+    </div>
+  </div>
+
+  <div class="setup-card">
+    <div class="setup-title">하루 목표 시간</div>
+    <div class="goal-row">
+      <label>한별 목표</label>
+      <input class="goal-input" type="number" id="goal0" min="30" max="600" step="10" value="120">
+      <span style="font-size:13px;color:var(--text2)">분</span>
+      <button class="goal-save-btn" onclick="saveGoal(0)">저장</button>
+    </div>
+    <div class="goal-row">
+      <label>한솔 목표</label>
+      <input class="goal-input" type="number" id="goal1" min="30" max="600" step="10" value="60">
+      <span style="font-size:13px;color:var(--text2)">분</span>
+      <button class="goal-save-btn" onclick="saveGoal(1)">저장</button>
+    </div>
+    <div class="hint-text">칭찬 기준: 목표 100% 달성 → 최고! / 67% 이상 → 잘했어! / 33% 이상 → 좋아!</div>
+  </div>
+
+  <div class="setup-card">
+    <div class="setup-title">데이터 초기화</div>
+    <button class="danger-btn" onclick="clearAll()">전체 데이터 삭제</button>
+  </div>
+</div>
+
+<script>
+const KIDS = [
+  { name:'한별', grade:'중1', color:'#1A237E', light:'#E8EAF6', mid:'#3949AB',
+    subjects:[
+      {key:'math',name:'수학',color:'#1565C0'},
+      {key:'eng', name:'영어',color:'#2E7D32'},
+      {key:'kor', name:'국어',color:'#E65100'},
+      {key:'soc', name:'사회',color:'#4527A0'},
+      {key:'sci', name:'과학',color:'#B71C1C'},
+    ]},
+  { name:'한솔', grade:'초3', color:'#1B5E20', light:'#E8F5E9', mid:'#388E3C',
+    subjects:[
+      {key:'math',name:'수학',color:'#1565C0'},
+      {key:'eng', name:'영어',color:'#2E7D32'},
+      {key:'kor', name:'국어',color:'#E65100'},
+    ]},
+];
+
+const TODAY = new Date();
+const TODAYSTR = TODAY.toISOString().slice(0,10);
+let curKid = 0, calYear = TODAY.getFullYear(), calMonth = TODAY.getMonth();
+
+function ls(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch{ return null; } }
+function sv(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+
+function getGoal(ki){ return parseInt(ls('goal_'+ki) || (ki===0?120:60)); }
+function saveGoal(ki){
+  const v = parseInt(document.getElementById('goal'+ki).value) || 60;
+  sv('goal_'+ki, v);
+  if(ki===curKid) updateSummary();
+  alert(KIDS[ki].name+' 목표가 저장됐어요!');
+}
+function getDayData(ki,d){ return ls('day_'+ki+'_'+d) || {subjects:{}}; }
+
+function calcMin(s,e){
+  if(!s||!e) return 0;
+  const [sh,sm]=s.split(':').map(Number), [eh,em]=e.split(':').map(Number);
+  const d=(eh*60+em)-(sh*60+sm); return d>0?d:0;
+}
+
+function getPraise(total, goal){
+  if(total<=0) return '과목 카드를 열어 시간을 입력해보세요!';
+  if(total>=goal) return '최고야! 오늘 목표를 완전히 달성했어! 정말 대단해! 🏆';
+  if(total>=goal*.67) return '잘했어! 조금만 더 하면 목표 달성이야! 화이팅! ⭐';
+  if(total>=goal*.33) return '좋아! 오늘도 열심히 했구나! 내일도 파이팅! 😊';
+  return '오늘은 조금 짧았지만, 내일은 더 잘할 수 있어! 💪';
+}
+
+function setTheme(){
+  const k = KIDS[curKid];
+  document.documentElement.style.setProperty('--accent', k.color);
+  document.documentElement.style.setProperty('--accent-light', k.light);
+  document.documentElement.style.setProperty('--hdr-color', k.color);
+  document.getElementById('mainHeader').style.setProperty('--hdr-color', k.color);
+  document.querySelectorAll('.tab.on').forEach(t=>{
+    t.style.color = k.color;
+    t.style.borderBottomColor = k.color;
+  });
+  document.querySelectorAll('.step-num').forEach(el=>{
+    el.style.background = k.light;
+    el.style.color = k.color;
+  });
+  document.getElementById('syncBtn').style.background = k.color;
+  document.querySelectorAll('.save-setup-btn,.goal-save-btn').forEach(b=>b.style.background=k.color);
+  KIDS.forEach((_,i)=>{
+    const btn = document.getElementById('kbtn'+i);
+    if(i===curKid){ btn.style.color=k.color; }
+    else { btn.style.color=''; }
+  });
+}
+
+function switchKid(ki){
+  curKid = ki;
+  KIDS.forEach((_,i)=>{
+    document.getElementById('kbtn'+i).classList.toggle('on', i===ki);
+  });
+  setTheme();
+  buildCards();
+  const activePage = document.querySelector('.page.on').id.replace('page-','');
+  if(activePage==='cal') renderCal();
+  if(activePage==='stats') renderStats();
+  if(activePage==='setup') loadSetup();
+}
+
+function gotoTab(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.remove('on');
+    t.style.color='';
+    t.style.borderBottomColor='';
+  });
+  document.getElementById('page-'+name).classList.add('on');
+  el.classList.add('on');
+  el.style.color = KIDS[curKid].color;
+  el.style.borderBottomColor = KIDS[curKid].color;
+  if(name==='cal') renderCal();
+  if(name==='stats') renderStats();
+  if(name==='setup') loadSetup();
+}
+
+function buildCards(){
+  const k = KIDS[curKid];
+  const dd = getDayData(curKid, TODAYSTR);
+  const wrap = document.getElementById('subjCards');
+  wrap.innerHTML = '';
+  k.subjects.forEach(s=>{
+    const sd = dd.subjects[s.key] || {start:'',end:'',memo:'',done:false};
+    const mins = calcMin(sd.start, sd.end);
+    const isDone = sd.done || mins >= 10;
+    const el = document.createElement('div');
+    el.className = 'scard';
+    el.innerHTML = `
+      <div class="scard-hdr" onclick="toggleBody('bd_${s.key}', this)">
+        <div class="scard-left">
+          <div class="scard-dot" style="background:${s.color}"></div>
+          <span class="scard-name">${s.name}</span>
+        </div>
+        <div class="scard-right">
+          <span class="scard-mins" id="bdg_${s.key}" style="color:${s.color}">${mins>0?mins+'분':''}</span>
+          <span class="scard-arrow" id="arr_${s.key}">▼</span>
+        </div>
+      </div>
+      <div class="scard-body" id="bd_${s.key}">
+        <div class="time-row">
+          <span class="time-label">시작</span>
+          <input type="time" class="time-input" id="sv_${s.key}" value="${sd.start}" onchange="onTime('${s.key}')">
+        </div>
+        <div class="time-row">
+          <span class="time-label">종료</span>
+          <input type="time" class="time-input" id="ev_${s.key}" value="${sd.end}" onchange="onTime('${s.key}')">
+          <span class="time-mins" id="md_${s.key}" style="color:${s.color}">${mins>0?mins+'분':'-'}</span>
+        </div>
+        <textarea class="memo-input" id="mm_${s.key}" placeholder="공부한 내용을 메모하세요...">${sd.memo||''}</textarea>
+        <button class="chk-btn ${isDone?'done':'undone'}" id="cb_${s.key}" onclick="toggleDone('${s.key}')">
+          ${isDone?'✓ 완료! 잘했어요':'완료 체크'}
+        </button>
+      </div>`;
+    wrap.appendChild(el);
+  });
+  updateSummary();
+}
+
+function toggleBody(id, hdr){
+  const body = document.getElementById(id);
+  const arrow = hdr.querySelector('.scard-arrow');
+  const isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function onTime(key){
+  const s = document.getElementById('sv_'+key)?.value;
+  const e = document.getElementById('ev_'+key)?.value;
+  const m = calcMin(s, e);
+  const subj = KIDS[curKid].subjects.find(x=>x.key===key);
+  document.getElementById('md_'+key).textContent = m>0?m+'분':'-';
+  document.getElementById('bdg_'+key).textContent = m>0?m+'분':'';
+  const btn = document.getElementById('cb_'+key);
+  if(btn && m>=10){ btn.className='chk-btn done'; btn.textContent='✓ 완료! 잘했어요'; }
+  updateSummary();
+}
+
+function toggleDone(key){
+  const btn = document.getElementById('cb_'+key);
+  const was = btn.classList.contains('done');
+  btn.className = 'chk-btn '+(was?'undone':'done');
+  btn.textContent = was?'완료 체크':'✓ 완료! 잘했어요';
+}
+
+function updateSummary(){
+  let total = 0;
+  KIDS[curKid].subjects.forEach(s=>{
+    const sv = document.getElementById('sv_'+s.key);
+    const ev = document.getElementById('ev_'+s.key);
+    if(sv&&ev) total += calcMin(sv.value, ev.value);
+  });
+  const goal = getGoal(curKid);
+  const pct = Math.min(100, Math.round(total/goal*100));
+  document.getElementById('totalMin').textContent = total;
+  document.getElementById('goalBar').style.width = pct+'%';
+  document.getElementById('goalBar').style.background = KIDS[curKid].color;
+  document.getElementById('praiseMsg').textContent = getPraise(total, goal);
+}
+
+function getCurrentData(){
+  const data = {subjects:{}};
+  KIDS[curKid].subjects.forEach(s=>{
+    const sv=document.getElementById('sv_'+s.key), ev=document.getElementById('ev_'+s.key);
+    const mv=document.getElementById('mm_'+s.key), btn=document.getElementById('cb_'+s.key);
+    data.subjects[s.key] = {
+      start: sv?sv.value:'', end: ev?ev.value:'',
+      memo: mv?mv.value:'', done: btn?btn.classList.contains('done'):false
+    };
+  });
+  return data;
+}
+
+async function syncToSheet(){
+  const cfg = ls('sheetCfg');
+  if(!cfg||!cfg.url||!cfg.id){
+    alert('설정 탭에서 구글 시트 연동을 먼저 설정해주세요!'); return;
+  }
+  const btn = document.getElementById('syncBtn');
+  const st = document.getElementById('syncStatus');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  const dayData = getCurrentData();
+  sv('day_'+curKid+'_'+TODAYSTR, dayData);
+  const [,mo] = TODAYSTR.split('-');
+  const rows = [];
+  KIDS[curKid].subjects.forEach(s=>{
+    const sd = dayData.subjects[s.key];
+    const mins = calcMin(sd.start, sd.end);
+    if(sd.start||sd.end||sd.memo)
+      rows.push([TODAYSTR, s.name, sd.start, sd.end, mins, sd.memo||'']);
+  });
+  if(!rows.length){
+    btn.disabled=false; btn.textContent='구글 시트에 저장';
+    st.textContent='입력된 데이터가 없어요.'; return;
+  }
+  try{
+    const res = await fetch(cfg.url, {
+      method:'POST',
+      body: JSON.stringify({sheetId:cfg.id, kid:KIDS[curKid].name, month:parseInt(mo), rows})
+    });
+    const txt = await res.text();
+    st.textContent = txt.includes('ok')
+      ? '✓ 저장 완료! '+new Date().toLocaleTimeString()
+      : '오류가 발생했어요. 설정을 확인해주세요.';
+  } catch {
+    st.textContent = '연결 실패. 인터넷 연결과 URL을 확인해주세요.';
+  }
+  btn.disabled=false; btn.textContent='구글 시트에 저장';
+}
+
+function renderCal(){
+  document.getElementById('calTitle').textContent = calYear+'년 '+(calMonth+1)+'월';
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['일','월','화','수','목','금','토'].forEach((d,i)=>{
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    if(i===0) el.style.color='#E53935';
+    if(i===6) el.style.color='#1E88E5';
+    el.textContent = d; grid.appendChild(el);
+  });
+  const first = new Date(calYear, calMonth, 1).getDay();
+  const days = new Date(calYear, calMonth+1, 0).getDate();
+  for(let i=0;i<first;i++){
+    const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);
+  }
+  for(let d=1;d<=days;d++){
+    const ds = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const dd = ls('day_'+curKid+'_'+ds);
+    let tot = 0;
+    if(dd&&dd.subjects) Object.values(dd.subjects).forEach(s=>tot+=calcMin(s.start,s.end));
+    const wd = new Date(calYear,calMonth,d).getDay();
+    const el = document.createElement('div');
+    const classes = ['cal-day'];
+    if(ds===TODAYSTR) classes.push('today');
+    if(tot>0) classes.push('has-data');
+    if(wd===0) classes.push('sun');
+    if(wd===6) classes.push('sat');
+    el.className = classes.join(' ');
+    if(ds===TODAYSTR){ el.style.borderColor=KIDS[curKid].color; el.style.color=KIDS[curKid].color; }
+    el.innerHTML = '<span>'+d+'</span>'+(tot>0?'<span class="cal-min">'+tot+'분</span>':'');
+    grid.appendChild(el);
+  }
+}
+function changeMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCal();
+}
+
+function renderStats(){
+  const k = KIDS[curKid];
+  document.getElementById('statTtl').textContent = k.name+' 이번 달 과목별 공부시간';
+  const y=TODAY.getFullYear(), mo=TODAY.getMonth();
+  const days=new Date(y,mo+1,0).getDate();
+  const totals={};
+  k.subjects.forEach(s=>totals[s.key]=0);
+  let studyDays=0, totalAll=0, goalDays=0;
+  const goal=getGoal(curKid);
+  for(let d=1;d<=days;d++){
+    const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const dd=ls('day_'+curKid+'_'+ds); let dt=0;
+    if(dd&&dd.subjects) k.subjects.forEach(s=>{
+      const m=calcMin((dd.subjects[s.key]||{}).start,(dd.subjects[s.key]||{}).end);
+      totals[s.key]+=m; dt+=m;
+    });
+    if(dt>0) studyDays++;
+    if(dt>=goal) goalDays++;
+    totalAll+=dt;
+  }
+  const maxV = Math.max(...Object.values(totals),1);
+  const bars = document.getElementById('statBars');
+  bars.innerHTML='';
+  k.subjects.forEach(s=>{
+    const pct=Math.round(totals[s.key]/maxV*100);
+    const h=Math.floor(totals[s.key]/60), m=totals[s.key]%60;
+    const vStr=h>0?h+'시간'+(m?m+'분':''):totals[s.key]+'분';
+    bars.innerHTML+=`<div class="bar-row">
+      <span class="bar-label">${s.name}</span>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
+      <span class="bar-val">${vStr}</span>
+    </div>`;
+  });
+  const avg = studyDays>0?Math.round(totalAll/studyDays):0;
+  document.getElementById('metricGrid').innerHTML=`
+    <div class="metric"><div class="metric-label">공부한 날</div><div class="metric-val">${studyDays}<span class="metric-unit">일</span></div></div>
+    <div class="metric"><div class="metric-label">하루 평균</div><div class="metric-val">${avg}<span class="metric-unit">분</span></div></div>
+    <div class="metric"><div class="metric-label">이번 달 총합</div><div class="metric-val">${totalAll}<span class="metric-unit">분</span></div></div>
+    <div class="metric"><div class="metric-label">목표 달성일</div><div class="metric-val">${goalDays}<span class="metric-unit">일</span></div></div>`;
+}
+
+function loadSetup(){
+  const cfg = ls('sheetCfg');
+  if(cfg){
+    if(cfg.url) document.getElementById('apiUrl').value = cfg.url;
+    if(cfg.id)  document.getElementById('sheetId').value = cfg.id;
+    document.getElementById('connStatus').innerHTML =
+      '<div class="conn-dot" style="background:#4CAF50"></div><span>연결 정보 저장됨</span>';
+  }
+  document.getElementById('goal0').value = getGoal(0);
+  document.getElementById('goal1').value = getGoal(1);
+}
+
+function saveSetup(){
+  const url = document.getElementById('apiUrl').value.trim();
+  const id  = document.getElementById('sheetId').value.trim();
+  if(!url||!id){ alert('URL과 시트 ID를 모두 입력해주세요.'); return; }
+  sv('sheetCfg', {url, id});
+  document.getElementById('connStatus').innerHTML =
+    '<div class="conn-dot" style="background:#4CAF50"></div><span>연결 정보 저장됨</span>';
+  alert('저장됐어요! 오늘 기록 탭에서 테스트해보세요.');
+}
+
+function copyCode(){
+  const code = `function doPost(e){
+  var d=JSON.parse(e.postData.contents);
+  var ss=SpreadsheetApp.openById(d.sheetId);
+  var sname=d.kid+'_'+d.month+'월';
+  var sh=ss.getSheetByName(sname)||ss.insertSheet(sname);
+  if(sh.getLastRow()===0)
+    sh.appendRow(['날짜','과목','시작','종료','분','메모']);
+  d.rows.forEach(function(r){sh.appendRow(r);});
+  return ContentService.createTextOutput('ok');
+}`;
+  navigator.clipboard.writeText(code).then(()=>alert('코드가 복사됐어요!')).catch(()=>alert('복사 실패. 위 코드를 직접 선택해서 복사해주세요.'));
+}
+
+function clearAll(){
+  if(confirm('정말 모든 데이터를 삭제할까요? 되돌릴 수 없어요.')){
+    localStorage.clear(); buildCards(); alert('초기화됐어요.');
+  }
+}
+
+// 초기화
+const WN=['일','월','화','수','목','금','토'];
+document.getElementById('hdrDate').textContent =
+  TODAY.getFullYear()+'년 '+(TODAY.getMonth()+1)+'월 '+TODAY.getDate()+'일 ('+WN[TODAY.getDay()]+')';
+setTheme();
+buildCards();
+renderCal();
+</script>
+</body>
+</html>
