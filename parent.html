@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>학습 현황 — 부모 대시보드</title>
 <style>
@@ -11,91 +11,93 @@
   --bg:#F4F6F9;--card:#fff;--border:rgba(0,0,0,0.08);
   --text:#1A1A2E;--text2:#6B7280;--text3:#9CA3AF;
   --hb:#1A237E;--hs:#1B5E20;
-  --radius:16px;--shadow:0 2px 12px rgba(0,0,0,0.06);
+  --r:14px;--sh:0 2px 10px rgba(0,0,0,0.06);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:2rem}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
 
-.header{background:#1A237E;padding:52px 20px 24px;padding-top:max(52px,calc(44px + env(safe-area-inset-top)))}
-.header h1{font-size:19px;font-weight:700;color:#fff;margin-bottom:3px}
-.header .sub{font-size:12px;color:rgba(255,255,255,.65)}
-.refresh-btn{float:right;background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:-2px}
-.refresh-btn:active{opacity:.7}
+.header{background:#1A237E;padding:max(48px,calc(40px + env(safe-area-inset-top))) 16px 20px}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:18px;font-weight:700;color:#fff}
+.hdr-date{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px}
+.refresh-btn{background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 
-.tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.tab{flex:1;padding:13px 4px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);border-bottom:2.5px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .2s}
+.tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.tab{flex:1;padding:12px 2px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);border:none;border-bottom:2.5px solid transparent;background:none;font-family:inherit}
 .tab.on{color:var(--hb);border-bottom-color:var(--hb)}
-.page{display:none;padding:16px}
+
+.page{display:none;padding:14px}
 .page.on{display:block}
 
 .kid-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .kid-tab{padding:10px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all .2s}
-.kid-tab.on{color:#fff}
 
-.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.metric{background:var(--card);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
-.metric-label{font-size:11px;color:var(--text2);margin-bottom:5px}
-.metric-val{font-size:26px;font-weight:700;color:var(--text)}
-.metric-unit{font-size:13px;font-weight:400;color:var(--text2);margin-left:2px}
-.metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.m-box{background:var(--card);border-radius:var(--r);padding:13px 14px;box-shadow:var(--sh)}
+.m-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+.m-val{font-size:24px;font-weight:700;color:var(--text);line-height:1}
+.m-unit{font-size:12px;font-weight:400;color:var(--text2);margin-left:2px}
+.m-sub{font-size:10px;color:var(--text3);margin-top:3px}
 
-.card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
-.card-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px}
+.card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.card-ttl{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px}
 
-.compare-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.compare-name{font-size:13px;font-weight:700;width:36px;flex-shrink:0}
-.compare-bar-wrap{flex:1;height:10px;background:#F0F0F0;border-radius:5px;overflow:hidden}
-.compare-bar{height:100%;border-radius:5px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.compare-val{font-size:12px;color:var(--text2);width:44px;text-align:right;flex-shrink:0}
-
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.bar-label{font-size:12px;color:var(--text2);flex:0 0 auto;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.bar-lbl{font-size:12px;color:var(--text2);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-wrap{flex:1;height:8px;background:#F0F0F0;border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.bar-val{font-size:12px;color:var(--text2);width:48px;text-align:right;flex-shrink:0}
+.bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.bar-val{font-size:11px;color:var(--text2);width:42px;text-align:right;flex-shrink:0}
 
-.cal-nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.cal-nav{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:15px;cursor:pointer;color:var(--text);font-family:inherit}
-.cal-month-title{font-size:16px;font-weight:700;color:var(--text)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-dow{font-size:11px;font-weight:600;color:var(--text3);text-align:center;padding:4px 0}
+/* 달력 - 모바일 최적화 */
+.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-nav{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:9px;font-size:14px;cursor:pointer;color:var(--text);font-family:inherit}
+.cal-title{font-size:15px;font-weight:700;color:var(--text)}
+.legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text2)}
+.legend-box{width:10px;height:10px;border-radius:3px;border:1px solid}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:3px 0}
 .cal-dow:first-child{color:#E53935}.cal-dow:last-child{color:#1E88E5}
-.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:9px;font-size:11px;font-weight:500;color:var(--text);background:var(--card);border:1px solid var(--border);gap:1px}
+.cal-day{
+  aspect-ratio:1;border-radius:7px;font-size:12px;font-weight:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--card);border:1px solid var(--border);gap:1px;
+  padding:2px 0;
+}
 .cal-day.empty{background:transparent;border:none}
 .cal-day.today{border:2px solid var(--hb);color:var(--hb);font-weight:700}
-.cal-day.both{background:#E8F5E9;border-color:#A5D6A7}
+.cal-day.both{background:#E8F5E9;border-color:#81C784}
 .cal-day.hb-only{background:#E8EAF6;border-color:#9FA8DA}
 .cal-day.hs-only{background:#F3E5F5;border-color:#CE93D8}
 .cal-day.sun{color:#E53935}.cal-day.sat{color:#1E88E5}
-.cal-dots{display:flex;gap:2px}
-.cal-dot{width:5px;height:5px;border-radius:50%}
-.cal-min{font-size:8px;color:var(--text3)}
-.legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
-.legend-dot{width:10px;height:10px;border-radius:3px;border:1px solid}
+.cal-dots{display:flex;gap:2px;margin-top:1px}
+.cal-dot{width:4px;height:4px;border-radius:50%}
+.cal-stamp{font-size:9px;line-height:1}
 
-.week-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.week-day{font-size:12px;color:var(--text2);width:22px;flex-shrink:0;text-align:center}
+/* 주간 */
+.week-row{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.week-day{font-size:11px;color:var(--text2);width:28px;flex-shrink:0;text-align:center;line-height:1.3}
 .week-bar-wrap{flex:1;height:8px;background:#F0F0F0;border-radius:4px;overflow:hidden}
 .week-bar{height:100%;border-radius:4px}
-.week-total{font-size:11px;color:var(--text3);width:40px;text-align:right;flex-shrink:0}
-.week-stamp{font-size:12px;width:16px;flex-shrink:0}
+.week-stamp{font-size:11px;width:14px;flex-shrink:0;text-align:center}
+.week-val{font-size:11px;color:var(--text3);width:36px;text-align:right;flex-shrink:0}
 
-.loading{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
-.loading-spin{font-size:28px;display:block;margin-bottom:8px;animation:spin 1s linear infinite}
+.spin{display:inline-block;animation:spin 1s linear infinite;font-size:20px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:32px 20px;color:var(--text3);font-size:13px;line-height:1.7}
-.error-msg{background:#FFEBEE;border-radius:12px;padding:14px;color:#C62828;font-size:13px;line-height:1.6;margin-bottom:12px}
-
-.stamp-badge{display:inline-block;font-size:12px;margin-left:4px}
+.loading{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+.err{background:#FFEBEE;border-radius:10px;padding:12px;color:#C62828;font-size:13px;line-height:1.6;margin-bottom:10px}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <button class="refresh-btn" onclick="refreshAll()">↻ 새로고침</button>
-  <h1>📊 학습 현황</h1>
-  <div class="sub" id="hdrDate"></div>
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-title">📊 학습 현황</div>
+      <div class="hdr-date" id="hdrDate"></div>
+    </div>
+    <button class="refresh-btn" onclick="refreshAll()">↻ 새로고침</button>
+  </div>
 </div>
 
 <div class="tab-bar">
@@ -107,258 +109,215 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 <div class="page on" id="page-overview">
   <div class="kid-tabs">
-    <button class="kid-tab on" id="otab0" onclick="switchKidOver(0)">한별 (중1)</button>
-    <button class="kid-tab" id="otab1" onclick="switchKidOver(1)">한솔 (초3)</button>
+    <button class="kid-tab on" id="otab0" onclick="switchOver(0)">한별 (중1)</button>
+    <button class="kid-tab" id="otab1" onclick="switchOver(1)">한솔 (초3)</button>
   </div>
-  <div id="overviewContent"><div class="loading"><span class="loading-spin">⏳</span>데이터 불러오는 중...</div></div>
+  <div id="overviewWrap"><div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div></div>
 </div>
 
 <div class="page" id="page-calendar">
-  <div class="cal-nav-row">
-    <button class="cal-nav" onclick="changeMonth(-1)">◀</button>
-    <span class="cal-month-title" id="calTitle"></span>
-    <button class="cal-nav" onclick="changeMonth(1)">▶</button>
+  <div class="cal-top">
+    <button class="cal-nav" onclick="chMo(-1)">◀</button>
+    <span class="cal-title" id="calTitle"></span>
+    <button class="cal-nav" onclick="chMo(1)">▶</button>
   </div>
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#E8F5E9;border-color:#A5D6A7"></div>둘다</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#E8EAF6;border-color:#9FA8DA"></div>한별만</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#F3E5F5;border-color:#CE93D8"></div>한솔만</div>
+    <div class="legend-item"><div class="legend-box" style="background:#E8F5E9;border-color:#81C784"></div>둘다</div>
+    <div class="legend-item"><div class="legend-box" style="background:#E8EAF6;border-color:#9FA8DA"></div>한별</div>
+    <div class="legend-item"><div class="legend-box" style="background:#F3E5F5;border-color:#CE93D8"></div>한솔</div>
   </div>
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
 <div class="page" id="page-subject">
   <div class="kid-tabs">
-    <button class="kid-tab on" id="stab0" onclick="switchKidSubj(0)">한별</button>
-    <button class="kid-tab" id="stab1" onclick="switchKidSubj(1)">한솔</button>
+    <button class="kid-tab on" id="stab0" onclick="switchSubj(0)">한별</button>
+    <button class="kid-tab" id="stab1" onclick="switchSubj(1)">한솔</button>
   </div>
-  <div id="subjContent"><div class="loading"><span class="loading-spin">⏳</span>불러오는 중...</div></div>
+  <div id="subjWrap"><div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div></div>
 </div>
 
 <div class="page" id="page-weekly">
   <div class="kid-tabs">
-    <button class="kid-tab on" id="wtab0" onclick="switchKidWeek(0)">한별</button>
-    <button class="kid-tab" id="wtab1" onclick="switchKidWeek(1)">한솔</button>
+    <button class="kid-tab on" id="wtab0" onclick="switchWeek(0)">한별</button>
+    <button class="kid-tab" id="wtab1" onclick="switchWeek(1)">한솔</button>
   </div>
-  <div id="weekContent"><div class="loading"><span class="loading-spin">⏳</span>불러오는 중...</div></div>
+  <div id="weekWrap"><div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div></div>
 </div>
 
 <script>
-const SHEET_ID = '18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyGyq8c_crbYRtQRpXcr6XJsq8Pn50pBRAEkWCbRIYmipb0lyebNNopXlkmDvhwrdZnA/exec';
+const SHEET_ID='18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyyGyq8c_crbYRtQRpXcr6XJsq8Pn50pBRAEkWCbRIYmipb0lyebNNopXlkmDvhwrdZnA/exec';
 
-const KIDS = [
-  { name:'한별', grade:'중1', color:'#1A237E', goal:120,
-    subjects:[
-      {key:'수학',color:'#1565C0'},{key:'영어',color:'#2E7D32'},
-      {key:'국어',color:'#E65100'},{key:'사회',color:'#4527A0'},
-      {key:'과학',color:'#B71C1C'},{key:'독서(신문,독서평설 포함)',color:'#00695C'},
-    ]},
-  { name:'한솔', grade:'초3', color:'#1B5E20', goal:60,
-    subjects:[
-      {key:'수학',color:'#1565C0'},{key:'영어',color:'#2E7D32'},
-      {key:'독서(독서평설 포함)',color:'#E65100'},{key:'온리원',color:'#6A1B9A'},
-    ]},
+// 과목 이름을 시트에 저장된 이름(한글)과 일치시킴
+const KIDS=[
+  {name:'한별',grade:'중1',color:'#1A237E',goal:120,
+   subjects:[
+     {name:'수학',color:'#1565C0'},{name:'영어',color:'#2E7D32'},
+     {name:'국어',color:'#E65100'},{name:'사회',color:'#4527A0'},
+     {name:'과학',color:'#B71C1C'},{name:'독서(신문,독서평설 포함)',color:'#00695C'},
+   ]},
+  {name:'한솔',grade:'초3',color:'#1B5E20',goal:60,
+   subjects:[
+     {name:'수학',color:'#1565C0'},{name:'영어',color:'#2E7D32'},
+     {name:'독서(독서평설 포함)',color:'#E65100'},{name:'온리원',color:'#6A1B9A'},
+   ]},
 ];
 
-const TODAY = new Date();
-const TODAYSTR = TODAY.toISOString().slice(0,10);
-let calYear = TODAY.getFullYear(), calMonth = TODAY.getMonth();
-let curKidOver=0, curKidSubj=0, curKidWeek=0;
-
-// 시트 데이터 캐시
-let sheetCache = {}; // key: "한별_4" => [{날짜,과목,시작,종료,분,메모}...]
-
-async function fetchSheet(kidName, month){
-  const cacheKey = kidName+'_'+month;
-  if(sheetCache[cacheKey]) return sheetCache[cacheKey];
-  try{
-    const url = `${SCRIPT_URL}?sheetId=${SHEET_ID}&kid=${encodeURIComponent(kidName)}&month=${month}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    sheetCache[cacheKey] = data;
-    return data;
-  }catch(e){
-    console.error('fetch error', e);
-    return [];
-  }
-}
-
-function normalizeDate(v){
-  if(!v) return '';
-  if(v instanceof Date) return v.toISOString().slice(0,10);
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
-  if(/^\d{4}\/\d{2}\/\d{2}/.test(s)) return s.slice(0,10).replace(/\//g,'-');
-  return s.slice(0,10);
-}
-
-async function fetchMonthData(kidIdx){
-  const k = KIDS[kidIdx];
-  const mo = TODAY.getMonth()+1;
-  const rows = await fetchSheet(k.name, mo);
-  const byDate = {};
-  rows.forEach(r=>{
-    const ds = normalizeDate(r['날짜']);
-    if(!ds) return;
-    if(!byDate[ds]) byDate[ds]={};
-    const subj = r['과목']||'';
-    const mins = parseInt(r['분'])||0;
-    byDate[ds][subj] = mins;
-  });
-  return byDate;
-}
-
-function calcMonthStats(byDate, kidIdx){
-  const k = KIDS[kidIdx];
-  const y=TODAY.getFullYear(), mo=TODAY.getMonth();
-  const days=new Date(y,mo+1,0).getDate();
-  const subjTotals={};
-  k.subjects.forEach(s=>subjTotals[s.key]=0);
-  let studyDays=0,totalAll=0,goalDays=0,curStreak=0,maxStreak=0;
-  for(let d=1;d<=days;d++){
-    const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const dayData=byDate[ds]||{};
-    let dt=0;
-    k.subjects.forEach(s=>{
-      const m=parseInt(dayData[s.key])||0;
-      subjTotals[s.key]+=m; dt+=m;
-    });
-    if(dt>0){studyDays++;curStreak++;}
-    else{maxStreak=Math.max(maxStreak,curStreak);curStreak=0;}
-    if(dt>=k.goal)goalDays++;
-    totalAll+=dt;
-  }
-  maxStreak=Math.max(maxStreak,curStreak);
-  const avg=studyDays>0?Math.round(totalAll/studyDays):0;
-  return{subjTotals,studyDays,totalAll,goalDays,avg,maxStreak};
-}
+const TODAY=new Date();
+const TODAYSTR=TODAY.toISOString().slice(0,10);
+let calYear=TODAY.getFullYear(),calMonth=TODAY.getMonth();
+let curOver=0,curSubj=0,curWeek=0;
+let cache={}; // "한별_4" => [{날짜,과목,분,...}]
 
 function fmtMin(m){
+  if(!m||m===0) return '0분';
   const h=Math.floor(m/60),min=m%60;
   return h>0?h+'시간'+(min?min+'분':''):m+'분';
 }
 
-// ── 종합 ──
-let overviewData=[null,null];
-async function renderOverview(){
-  const wrap=document.getElementById('overviewContent');
-  wrap.innerHTML='<div class="loading"><span class="loading-spin">⏳</span>데이터 불러오는 중...</div>';
+function normDate(v){
+  if(!v) return '';
+  if(v instanceof Date){
+    const y=v.getFullYear(),m=String(v.getMonth()+1).padStart(2,'0'),d=String(v.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
+  const s=String(v).trim().replace(/\//g,'-');
+  return s.slice(0,10);
+}
+
+async function fetchSheet(kidName,month){
+  const key=kidName+'_'+month;
+  if(cache[key]) return cache[key];
   try{
-    if(!overviewData[0]) overviewData[0]=await fetchMonthData(0);
-    if(!overviewData[1]) overviewData[1]=await fetchMonthData(1);
-    const k=KIDS[curKidOver];
-    const stats=calcMonthStats(overviewData[curKidOver],curKidOver);
-    const stats0=calcMonthStats(overviewData[0],0);
-    const stats1=calcMonthStats(overviewData[1],1);
-    const maxT=Math.max(stats0.totalAll,stats1.totalAll,1);
-    const maxV=Math.max(...Object.values(stats.subjTotals),1);
+    const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(kidName)+'&month='+month;
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    cache[key]=Array.isArray(data)?data:[];
+    return cache[key];
+  }catch(e){console.error(e);return [];}
+}
 
-    let subjBars='';
+// 날짜별 분 합산 {ds: {과목명: 분}}
+function buildByDate(rows){
+  const bd={};
+  rows.forEach(r=>{
+    const ds=normDate(r['날짜']||r['date']||'');
+    if(!ds||ds.length<10) return;
+    const subj=String(r['과목']||r['subject']||'').trim();
+    const mins=parseInt(r['분']||r['minutes']||0)||0;
+    if(!bd[ds]) bd[ds]={total:0};
+    bd[ds][subj]=(bd[ds][subj]||0)+mins;
+    bd[ds].total=(bd[ds].total||0)+mins;
+  });
+  return bd;
+}
+
+function calcStats(bd,kidIdx){
+  const k=KIDS[kidIdx];
+  const y=TODAY.getFullYear(),mo=TODAY.getMonth();
+  const days=new Date(y,mo+1,0).getDate();
+  const subjTotals={};k.subjects.forEach(s=>subjTotals[s.name]=0);
+  let studyDays=0,totalAll=0,goalDays=0,curStr=0,maxStr=0;
+  for(let d=1;d<=days;d++){
+    const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const day=bd[ds]||{};
+    const dt=day.total||0;
+    k.subjects.forEach(s=>{ subjTotals[s.name]+=(day[s.name]||0); });
+    if(dt>0){studyDays++;curStr++;}else{maxStr=Math.max(maxStr,curStr);curStr=0;}
+    if(dt>=k.goal) goalDays++;
+    totalAll+=dt;
+  }
+  maxStr=Math.max(maxStr,curStr);
+  return{subjTotals,studyDays,totalAll,goalDays,avg:studyDays>0?Math.round(totalAll/studyDays):0,maxStr};
+}
+
+// ── 종합 ──
+let bdCache=[null,null];
+async function renderOverview(){
+  const wrap=document.getElementById('overviewWrap');
+  wrap.innerHTML='<div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div>';
+  try{
+    const mo=TODAY.getMonth()+1;
+    if(!bdCache[0]){ const r=await fetchSheet(KIDS[0].name,mo); bdCache[0]=buildByDate(r); }
+    if(!bdCache[1]){ const r=await fetchSheet(KIDS[1].name,mo); bdCache[1]=buildByDate(r); }
+    const k=KIDS[curOver];
+    const st=calcStats(bdCache[curOver],curOver);
+    const st0=calcStats(bdCache[0],0);
+    const st1=calcStats(bdCache[1],1);
+    const maxT=Math.max(st0.totalAll,st1.totalAll,1);
+    const maxV=Math.max(...Object.values(st.subjTotals),1);
+    let bars='';
     k.subjects.forEach(s=>{
-      const pct=Math.round(stats.subjTotals[s.key]/maxV*100);
-      subjBars+=`<div class="bar-row">
-        <span class="bar-label">${s.key}</span>
+      const pct=Math.round((st.subjTotals[s.name]||0)/maxV*100);
+      bars+=`<div class="bar-row">
+        <span class="bar-lbl" title="${s.name}">${s.name}</span>
         <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
-        <span class="bar-val">${fmtMin(stats.subjTotals[s.key])}</span></div>`;
+        <span class="bar-val">${fmtMin(st.subjTotals[s.name]||0)}</span>
+      </div>`;
     });
-
     wrap.innerHTML=`
-      <div class="metric-grid">
-        <div class="metric"><div class="metric-label">공부한 날</div><div class="metric-val">${stats.studyDays}<span class="metric-unit">일</span></div><div class="metric-sub">이번 달</div></div>
-        <div class="metric"><div class="metric-label">하루 평균</div><div class="metric-val">${stats.avg}<span class="metric-unit">분</span></div><div class="metric-sub">공부한 날 기준</div></div>
-        <div class="metric"><div class="metric-label">목표 달성일</div><div class="metric-val">${stats.goalDays}<span class="metric-unit">일</span></div><div class="metric-sub">목표 ${k.goal}분</div></div>
-        <div class="metric"><div class="metric-label">최장 연속</div><div class="metric-val">${stats.maxStreak}<span class="metric-unit">일</span></div><div class="metric-sub">연속 공부</div></div>
+      <div class="m-grid">
+        <div class="m-box"><div class="m-lbl">공부한 날</div><div class="m-val">${st.studyDays}<span class="m-unit">일</span></div><div class="m-sub">이번 달 누계</div></div>
+        <div class="m-box"><div class="m-lbl">하루 평균</div><div class="m-val">${st.avg}<span class="m-unit">분</span></div><div class="m-sub">공부한 날 기준</div></div>
+        <div class="m-box"><div class="m-lbl">목표 달성일</div><div class="m-val">${st.goalDays}<span class="m-unit">일</span></div><div class="m-sub">목표 ${k.goal}분/일</div></div>
+        <div class="m-box"><div class="m-lbl">최장 연속</div><div class="m-val">${st.maxStr}<span class="m-unit">일</span></div><div class="m-sub">연속 공부</div></div>
       </div>
       <div class="card">
-        <div class="card-title">두 아이 이번 달 비교</div>
-        <div class="compare-row">
-          <span class="compare-name" style="color:${KIDS[0].color}">한별</span>
-          <div class="compare-bar-wrap"><div class="compare-bar" style="width:${Math.round(stats0.totalAll/maxT*100)}%;background:${KIDS[0].color}"></div></div>
-          <span class="compare-val">${fmtMin(stats0.totalAll)}</span>
+        <div class="card-ttl">이번 달 두 아이 비교 (현재까지)</div>
+        <div class="bar-row">
+          <span class="bar-lbl" style="color:${KIDS[0].color};font-weight:600">한별</span>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(st0.totalAll/maxT*100)}%;background:${KIDS[0].color}"></div></div>
+          <span class="bar-val">${fmtMin(st0.totalAll)}</span>
         </div>
-        <div class="compare-row">
-          <span class="compare-name" style="color:${KIDS[1].color}">한솔</span>
-          <div class="compare-bar-wrap"><div class="compare-bar" style="width:${Math.round(stats1.totalAll/maxT*100)}%;background:${KIDS[1].color}"></div></div>
-          <span class="compare-val">${fmtMin(stats1.totalAll)}</span>
+        <div class="bar-row">
+          <span class="bar-lbl" style="color:${KIDS[1].color};font-weight:600">한솔</span>
+          <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(st1.totalAll/maxT*100)}%;background:${KIDS[1].color}"></div></div>
+          <span class="bar-val">${fmtMin(st1.totalAll)}</span>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">${k.name} 과목별 공부시간</div>
-        ${subjBars}
+        <div class="card-ttl">${k.name} 과목별 공부시간 (이번 달)</div>
+        ${bars}
       </div>`;
   }catch(e){
-    wrap.innerHTML=`<div class="error-msg">데이터를 불러오지 못했어요.<br>인터넷 연결 또는 Apps Script 설정을 확인해주세요.<br><small>${e.message||''}</small></div>`;
+    wrap.innerHTML=`<div class="err">불러오기 실패: ${e.message}<br>인터넷 연결 및 Apps Script 설정을 확인해주세요.</div>`;
   }
 }
 
-function switchKidOver(ki){
-  curKidOver=ki;
+function switchOver(ki){
+  curOver=ki;
   [0,1].forEach(i=>{
     const b=document.getElementById('otab'+i);
     b.classList.toggle('on',i===ki);
     b.style.background=i===ki?KIDS[i].color:'';
     b.style.color=i===ki?'#fff':'';
   });
-  if(overviewData[ki]) renderOverview();
+  renderOverview();
 }
 
 // ── 달력 ──
-let calData=[null,null];
-async function renderCalendar(){
+async function renderCal(){
   document.getElementById('calTitle').textContent=calYear+'년 '+(calMonth+1)+'월';
   const grid=document.getElementById('calGrid');
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text3);font-size:13px">불러오는 중...</div>';
-
+  grid.innerHTML='<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text3);font-size:12px">불러오는 중...</div>';
   const mo=calMonth+1;
-  const [rows0,rows1]=await Promise.all([
-    fetchSheet(KIDS[0].name,mo),
-    fetchSheet(KIDS[1].name,mo)
-  ]);
-
-  // 날짜 정규화 함수 - 다양한 형식 처리
-  function normalizeDate(v){
-    if(!v) return '';
-    if(v instanceof Date) return v.toISOString().slice(0,10);
-    const s = String(v).trim();
-    // yyyy-MM-dd 형식
-    if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
-    // yyyy/MM/dd 형식
-    if(/^\d{4}\/\d{2}\/\d{2}/.test(s)) return s.slice(0,10).replace(/\//g,'-');
-    return s.slice(0,10);
-  }
-
-  const byDate0={},byDate1={};
-  rows0.forEach(r=>{
-    const ds=normalizeDate(r['날짜']);
-    if(!ds) return;
-    if(!byDate0[ds]) byDate0[ds]=0;
-    byDate0[ds]+=parseInt(r['분'])||0;
-  });
-  rows1.forEach(r=>{
-    const ds=normalizeDate(r['날짜']);
-    if(!ds) return;
-    if(!byDate1[ds]) byDate1[ds]=0;
-    byDate1[ds]+=parseInt(r['분'])||0;
-  });
-
+  const [r0,r1]=await Promise.all([fetchSheet(KIDS[0].name,mo),fetchSheet(KIDS[1].name,mo)]);
+  const bd0=buildByDate(r0),bd1=buildByDate(r1);
   grid.innerHTML='';
   ['일','월','화','수','목','금','토'].forEach((d,i)=>{
     const el=document.createElement('div');el.className='cal-dow';
     if(i===0)el.style.color='#E53935';if(i===6)el.style.color='#1E88E5';
     el.textContent=d;grid.appendChild(el);
   });
-
   const first=new Date(calYear,calMonth,1).getDay();
-  const days=new Date(calYear,calMonth+1,0).getDate();
-  // 빈 칸 (이전달 날짜 표시 안 함)
-  for(let i=0;i<first;i++){
-    const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);
-  }
-  // 이번달 날짜만
-  for(let d=1;d<=days;d++){
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(let d=1;d<=daysInMonth;d++){
     const ds=calYear+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const t0=byDate0[ds]||0, t1=byDate1[ds]||0;
+    const t0=(bd0[ds]||{}).total||0;
+    const t1=(bd1[ds]||{}).total||0;
     const wd=new Date(calYear,calMonth,d).getDay();
     const el=document.createElement('div');
     const cls=['cal-day'];
@@ -375,165 +334,126 @@ async function renderCalendar(){
         (t0>0?'<div class="cal-dot" style="background:'+KIDS[0].color+'"></div>':'')+
         (t1>0?'<div class="cal-dot" style="background:'+KIDS[1].color+'"></div>':'')+
       '</div>':'')+
-      (s0||s1?'<span style="font-size:9px">'+s0+s1+'</span>':'');
+      (s0||s1?'<span class="cal-stamp">'+s0+s1+'</span>':'');
     grid.appendChild(el);
   }
 }
-function changeMonth(d){
+function chMo(d){
   calMonth+=d;
   if(calMonth>11){calMonth=0;calYear++;}
   if(calMonth<0){calMonth=11;calYear--;}
-  sheetCache={};
-  renderCalendar();
+  // 해당 월 캐시 삭제
+  delete cache[KIDS[0].name+'_'+(calMonth+1)];
+  delete cache[KIDS[1].name+'_'+(calMonth+1)];
+  renderCal();
 }
 
 // ── 과목별 ──
-async function renderSubject(){
-  const wrap=document.getElementById('subjContent');
-  wrap.innerHTML='<div class="loading"><span class="loading-spin">⏳</span>불러오는 중...</div>';
+async function renderSubj(){
+  const wrap=document.getElementById('subjWrap');
+  wrap.innerHTML='<div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div>';
   try{
-    if(!overviewData[curKidSubj]) overviewData[curKidSubj]=await fetchMonthData(curKidSubj);
-    const k=KIDS[curKidSubj];
-    const stats=calcMonthStats(overviewData[curKidSubj],curKidSubj);
-    const maxV=Math.max(...Object.values(stats.subjTotals),1);
-
-    // 과목별 공부 일수 계산
-    const y=TODAY.getFullYear(),mo=TODAY.getMonth()+1;
-    const rows=await fetchSheet(k.name,mo);
-    const dayCounts={};
-    k.subjects.forEach(s=>dayCounts[s.key]=new Set());
-    rows.forEach(r=>{
-      const ds=String(r['날짜']||'').slice(0,10);
-      const subj=r['과목']||'';
-      const mins=parseInt(r['분'])||0;
-      if(mins>0&&dayCounts[subj]) dayCounts[subj].add(ds);
-    });
-
+    const mo=TODAY.getMonth()+1;
+    if(!bdCache[curSubj]){const r=await fetchSheet(KIDS[curSubj].name,mo);bdCache[curSubj]=buildByDate(r);}
+    const k=KIDS[curSubj];
+    const st=calcStats(bdCache[curSubj],curSubj);
+    const maxV=Math.max(...Object.values(st.subjTotals),1);
+    // 공부 일수 계산
+    const y=TODAY.getFullYear();
+    const days=new Date(y,mo,0).getDate();
+    const dayCnt={};k.subjects.forEach(s=>dayCnt[s.name]=0);
+    for(let d=1;d<=days;d++){
+      const ds=y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const day=bdCache[curSubj][ds]||{};
+      k.subjects.forEach(s=>{if((day[s.name]||0)>0)dayCnt[s.name]++;});
+    }
+    const maxD=Math.max(...Object.values(dayCnt),1);
     let timeBars='',dayBars='';
-    const maxDays=Math.max(...k.subjects.map(s=>(dayCounts[s.key]||new Set()).size),1);
     k.subjects.forEach(s=>{
-      const pct=Math.round(stats.subjTotals[s.key]/maxV*100);
-      const dpct=Math.round((dayCounts[s.key]||new Set()).size/maxDays*100);
-      timeBars+=`<div class="bar-row">
-        <span class="bar-label">${s.key}</span>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${s.color}"></div></div>
-        <span class="bar-val">${fmtMin(stats.subjTotals[s.key])}</span></div>`;
-      dayBars+=`<div class="bar-row">
-        <span class="bar-label">${s.key}</span>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${dpct}%;background:${s.color}"></div></div>
-        <span class="bar-val">${(dayCounts[s.key]||new Set()).size}일</span></div>`;
+      const tp=Math.round((st.subjTotals[s.name]||0)/maxV*100);
+      const dp=Math.round(dayCnt[s.name]/maxD*100);
+      timeBars+=`<div class="bar-row"><span class="bar-lbl" title="${s.name}">${s.name}</span><div class="bar-wrap"><div class="bar-fill" style="width:${tp}%;background:${s.color}"></div></div><span class="bar-val">${fmtMin(st.subjTotals[s.name]||0)}</span></div>`;
+      dayBars+=`<div class="bar-row"><span class="bar-lbl" title="${s.name}">${s.name}</span><div class="bar-wrap"><div class="bar-fill" style="width:${dp}%;background:${s.color}"></div></div><span class="bar-val">${dayCnt[s.name]}일</span></div>`;
     });
-
     wrap.innerHTML=`
-      <div class="card"><div class="card-title">과목별 총 공부시간</div>${timeBars}</div>
-      <div class="card"><div class="card-title">과목별 공부 일수</div>${dayBars}</div>`;
-  }catch(e){
-    wrap.innerHTML=`<div class="error-msg">불러오기 실패: ${e.message||''}</div>`;
-  }
+      <div class="card"><div class="card-ttl">과목별 총 공부시간</div>${timeBars}</div>
+      <div class="card"><div class="card-ttl">과목별 공부 일수</div>${dayBars}</div>`;
+  }catch(e){wrap.innerHTML=`<div class="err">불러오기 실패: ${e.message}</div>`;}
 }
-
-function switchKidSubj(ki){
-  curKidSubj=ki;
-  [0,1].forEach(i=>{
-    const b=document.getElementById('stab'+i);
-    b.classList.toggle('on',i===ki);
-    b.style.background=i===ki?KIDS[i].color:'';
-    b.style.color=i===ki?'#fff':'';
-  });
-  renderSubject();
+function switchSubj(ki){
+  curSubj=ki;
+  [0,1].forEach(i=>{const b=document.getElementById('stab'+i);b.classList.toggle('on',i===ki);b.style.background=i===ki?KIDS[i].color:'';b.style.color=i===ki?'#fff':'';});
+  renderSubj();
 }
 
 // ── 주간 ──
-async function renderWeekly(){
-  const wrap=document.getElementById('weekContent');
-  wrap.innerHTML='<div class="loading"><span class="loading-spin">⏳</span>불러오는 중...</div>';
+async function renderWeek(){
+  const wrap=document.getElementById('weekWrap');
+  wrap.innerHTML='<div class="loading"><span class="spin">⏳</span><br>불러오는 중...</div>';
   try{
-    const k=KIDS[curKidWeek];
     const mo=TODAY.getMonth()+1;
-    const rows=await fetchSheet(k.name,mo);
-    const byDate={};
-    rows.forEach(r=>{
-      const ds=String(r['날짜']||'').slice(0,10);
-      if(!byDate[ds])byDate[ds]=0;
-      byDate[ds]+=parseInt(r['분'])||0;
-    });
-
+    if(!bdCache[curWeek]){const r=await fetchSheet(KIDS[curWeek].name,mo);bdCache[curWeek]=buildByDate(r);}
+    const k=KIDS[curWeek];
     const WD=['일','월','화','수','목','금','토'];
     const dates=[];
-    for(let i=13;i>=0;i--){
-      const d=new Date(TODAY);d.setDate(TODAY.getDate()-i);dates.push(d);
-    }
-    const maxMin=Math.max(...dates.map(d=>byDate[d.toISOString().slice(0,10)]||0),k.goal,1);
-    let weekTotal=0,weekDays=0,rows_html='';
-    dates.forEach((d,idx)=>{
+    for(let i=13;i>=0;i--){const d=new Date(TODAY);d.setDate(TODAY.getDate()-i);dates.push(d);}
+    const vals=dates.map(d=>(bdCache[curWeek][d.toISOString().slice(0,10)]||{}).total||0);
+    const maxM=Math.max(...vals,k.goal,1);
+    let html='',wkTotal=0,wkDays=0;
+    dates.forEach((d,i)=>{
       const ds=d.toISOString().slice(0,10);
-      const tot=byDate[ds]||0;
+      const tot=vals[i];
       const wd=d.getDay();
-      const pct=Math.round(tot/maxMin*100);
+      const pct=Math.round(tot/maxM*100);
       const isToday=ds===TODAYSTR;
       const stamp=tot>=k.goal&&tot>0?'🏆':'';
-      if(idx>=7){weekTotal+=tot;if(tot>0)weekDays++;}
-      rows_html+=`<div class="week-row">
-        <span class="week-day" style="color:${wd===0?'#E53935':wd===6?'#1E88E5':'var(--text2)'};font-weight:${isToday?700:400}">${WD[wd]}<br><span style="font-size:9px">${d.getDate()}일</span></span>
-        <div class="week-bar-wrap"><div class="week-bar" style="width:${pct}%;background:${tot>=k.goal?k.color:'#B0BEC5'}"></div></div>
+      if(i>=7){wkTotal+=tot;if(tot>0)wkDays++;}
+      html+=`<div class="week-row">
+        <div class="week-day" style="color:${wd===0?'#E53935':wd===6?'#1E88E5':'var(--text2)'};font-weight:${isToday?700:400}">${WD[wd]}<br><span style="font-size:9px">${d.getDate()}일</span></div>
+        <div class="week-bar-wrap"><div class="week-bar" style="width:${pct}%;background:${tot>=k.goal?k.color:'#CFD8DC'}"></div></div>
         <span class="week-stamp">${stamp}</span>
-        <span class="week-total">${tot>0?tot+'분':'-'}</span>
+        <span class="week-val">${tot>0?tot+'분':'-'}</span>
       </div>`;
     });
-    const weekAvg=weekDays>0?Math.round(weekTotal/weekDays):0;
-    wrap.innerHTML=`
-      <div class="card"><div class="card-title">최근 2주 일별 공부시간</div>${rows_html}</div>
-      <div class="metric-grid">
-        <div class="metric"><div class="metric-label">최근 7일 총합</div><div class="metric-val">${weekTotal}<span class="metric-unit">분</span></div></div>
-        <div class="metric"><div class="metric-label">평균 (공부한 날)</div><div class="metric-val">${weekAvg}<span class="metric-unit">분</span></div></div>
+    const avg=wkDays>0?Math.round(wkTotal/wkDays):0;
+    wrap.innerHTML=`<div class="card"><div class="card-ttl">최근 2주 일별 공부시간</div>${html}</div>
+      <div class="m-grid">
+        <div class="m-box"><div class="m-lbl">최근 7일 총합</div><div class="m-val">${wkTotal}<span class="m-unit">분</span></div></div>
+        <div class="m-box"><div class="m-lbl">평균 (공부한 날)</div><div class="m-val">${avg}<span class="m-unit">분</span></div></div>
       </div>`;
-  }catch(e){
-    wrap.innerHTML=`<div class="error-msg">불러오기 실패: ${e.message||''}</div>`;
-  }
+  }catch(e){wrap.innerHTML=`<div class="err">불러오기 실패: ${e.message}</div>`;}
 }
-
-function switchKidWeek(ki){
-  curKidWeek=ki;
-  [0,1].forEach(i=>{
-    const b=document.getElementById('wtab'+i);
-    b.classList.toggle('on',i===ki);
-    b.style.background=i===ki?KIDS[i].color:'';
-    b.style.color=i===ki?'#fff':'';
-  });
-  renderWeekly();
+function switchWeek(ki){
+  curWeek=ki;
+  [0,1].forEach(i=>{const b=document.getElementById('wtab'+i);b.classList.toggle('on',i===ki);b.style.background=i===ki?KIDS[i].color:'';b.style.color=i===ki?'#fff':'';});
+  renderWeek();
 }
 
 function gotoTab(name,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('on');});
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById('page-'+name).classList.add('on');
   el.classList.add('on');
   if(name==='overview')renderOverview();
-  if(name==='calendar')renderCalendar();
-  if(name==='subject')renderSubject();
-  if(name==='weekly')renderWeekly();
+  if(name==='calendar')renderCal();
+  if(name==='subject')renderSubj();
+  if(name==='weekly')renderWeek();
 }
 
 function refreshAll(){
-  sheetCache={};
-  overviewData=[null,null];
-  const activePage=document.querySelector('.page.on').id.replace('page-','');
-  if(activePage==='overview')renderOverview();
-  if(activePage==='calendar')renderCalendar();
-  if(activePage==='subject')renderSubject();
-  if(activePage==='weekly')renderWeekly();
+  cache={};bdCache=[null,null];
+  const active=document.querySelector('.page.on').id.replace('page-','');
+  if(active==='overview')renderOverview();
+  if(active==='calendar')renderCal();
+  if(active==='subject')renderSubj();
+  if(active==='weekly')renderWeek();
 }
 
 // 초기화
 const WN=['일','월','화','수','목','금','토'];
-document.getElementById('hdrDate').textContent=
-  TODAY.getFullYear()+'년 '+(TODAY.getMonth()+1)+'월 '+TODAY.getDate()+'일 ('+WN[TODAY.getDay()]+')';
-// 초기 로딩: 두 아이 데이터 동시에 미리 fetch
-Promise.all([fetchMonthData(0), fetchMonthData(1)]).then(([d0,d1])=>{
-  overviewData[0]=d0; overviewData[1]=d1;
-  renderOverview();
-});
-renderCalendar();
+document.getElementById('hdrDate').textContent=TODAY.getFullYear()+'년 '+(TODAY.getMonth()+1)+'월 '+TODAY.getDate()+'일 ('+WN[TODAY.getDay()]+')';
+switchOver(0);
+renderCal();
 </script>
 </body>
 </html>
