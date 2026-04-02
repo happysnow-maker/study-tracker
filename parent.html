@@ -86,6 +86,23 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading{text-align:center;padding:32px;color:var(--text3);font-size:13px}
 .err{background:#FFEBEE;border-radius:10px;padding:12px;color:#C62828;font-size:13px;line-height:1.6;margin-bottom:10px}
+
+/* 메모 팝업 */
+.memo-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s}
+.memo-overlay.show{opacity:1;pointer-events:all}
+.memo-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.memo-overlay.show .memo-sheet{transform:translateY(0)}
+.memo-sheet-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.memo-sheet-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.memo-item{border-radius:10px;padding:12px 14px;margin-bottom:8px;background:var(--bg)}
+.memo-item-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.memo-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.memo-item-subj{font-size:13px;font-weight:600;color:var(--text)}
+.memo-item-time{font-size:11px;color:var(--text3);margin-left:auto}
+.memo-item-mins{font-size:12px;font-weight:700}
+.memo-item-text{font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+.memo-empty{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+.memo-close{width:100%;padding:13px;background:var(--hb);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px}
 </style>
 </head>
 <body>
@@ -147,7 +164,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 <script>
 const SHEET_ID='18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzXAKN47jhpA0npkSc8wpB4KQriuwqi4v4TNzvVlBKetRNTv8OART6nSVR2hyuYO7-M5A/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxmq58iXt2OS62JKyV1QjeKAXbToLeOOTTBqYdkKVCsYDf8jWlj_MryB7nnzR8w2Z7Tpw/exec';
 
 // 과목 이름을 시트에 저장된 이름(한글)과 일치시킴
 const KIDS=[
@@ -350,6 +367,10 @@ async function renderCal(){
         (t1>0?'<div class="cal-dot" style="background:'+KIDS[1].color+'"></div>':'')+
       '</div>':'')+
       (s0||s1?'<span class="cal-stamp">'+s0+s1+'</span>':'');
+    if(t0>0||t1>0){
+      el.style.cursor='pointer';
+      el.onclick=(function(ds,t0,t1){return function(){showMemo(ds,t0,t1);};})(ds,t0,t1);
+    }
     grid.appendChild(el);
   }
 }
@@ -455,6 +476,56 @@ function gotoTab(name,el){
   if(name==='weekly')renderWeek();
 }
 
+
+async function showMemo(ds, t0, t1){
+  const mo = calMonth+1;
+  const [r0,r1] = await Promise.all([
+    fetchSheet(KIDS[0].name, mo),
+    fetchSheet(KIDS[1].name, mo)
+  ]);
+  const WN=['일','월','화','수','목','금','토'];
+  const date = new Date(ds);
+  const wd = WN[date.getDay()];
+  const label = ds.slice(5).replace('-','/') + ' (' + wd + ')';
+
+  document.getElementById('memoTitle').textContent = label + ' 학습 기록';
+  document.getElementById('memoSub').textContent = '클릭한 날짜의 과목별 공부 내용이에요';
+
+  let html = '';
+  const addRows = function(rows, kid){
+    const dayRows = rows.filter(r=>String(r['날짜']||'').slice(0,10)===ds);
+    if(dayRows.length===0) return;
+    html += '<div style="font-size:12px;font-weight:700;color:'+kid.color+';margin:10px 0 6px">'+kid.name+'</div>';
+    dayRows.forEach(function(r){
+      const subj = r['과목']||'';
+      const mins = parseInt(r['분'])||0;
+      const start = r['시작']||'';
+      const end = r['종료']||'';
+      const memo = String(r['메모']||'').trim();
+      const subjInfo = kid.subjects.find(s=>s.name===subj)||{color:'#888'};
+      html += '<div class="memo-item">'
+        +'<div class="memo-item-header">'
+        +'<div class="memo-item-dot" style="background:'+subjInfo.color+'"></div>'
+        +'<span class="memo-item-subj">'+subj+'</span>'
+        +(start?'<span class="memo-item-time">'+start+(end?'~'+end:'')+'</span>':'')
+        +'<span class="memo-item-mins" style="color:'+subjInfo.color+'">'+mins+'분</span>'
+        +'</div>'
+        +(memo?'<div class="memo-item-text">'+memo+'</div>':'<div style="font-size:12px;color:var(--text3)">메모 없음</div>')
+        +'</div>';
+    });
+  };
+
+  addRows(r0, KIDS[0]);
+  addRows(r1, KIDS[1]);
+
+  if(!html) html = '<div class="memo-empty">공부 기록이 없어요</div>';
+  document.getElementById('memoContent').innerHTML = html;
+  document.getElementById('memoOverlay').classList.add('show');
+}
+
+function closeMemo(){
+  document.getElementById('memoOverlay').classList.remove('show');
+}
 function refreshAll(){
   cache={};bdCache=[null,null];
   const active=document.querySelector('.page.on').id.replace('page-','');
@@ -470,5 +541,14 @@ document.getElementById('hdrDate').textContent=TODAY.getFullYear()+'년 '+(TODAY
 switchOver(0);
 renderCal();
 </script>
+
+<div class="memo-overlay" id="memoOverlay" onclick="if(event.target===this)closeMemo()">
+  <div class="memo-sheet">
+    <div class="memo-sheet-title" id="memoTitle"></div>
+    <div class="memo-sheet-sub" id="memoSub"></div>
+    <div id="memoContent"></div>
+    <button class="memo-close" onclick="closeMemo()">닫기</button>
+  </div>
+</div>
 </body>
 </html>
