@@ -663,47 +663,74 @@ function gotoTab(name, el){
   if(name==='stats') renderStats();
 }
 
+function getSessionsForSubj(ki, dateStr, subjKey){
+  const dd = getDayData(ki, dateStr);
+  const s = dd.subjects && dd.subjects[subjKey];
+  if(!s) return [{start:'',end:'',memo:'',done:false}];
+  // 기존 단일 형식 호환
+  if(Array.isArray(s)) return s.length>0 ? s : [{start:'',end:'',memo:'',done:false}];
+  return [s];
+}
+
 function buildCards(){
   const k = KIDS[curKid];
-  const dd = getDayData(curKid, TODAYSTR);
   const wrap = document.getElementById('subjCards');
   wrap.innerHTML = '';
   k.subjects.forEach(s=>{
-    const sd = dd.subjects[s.key] || {start:'',end:'',memo:'',done:false};
-    const mins = calcMin(sd.start, sd.end);
-    const isDone = sd.done || mins >= 10;
+    const sessions = getSessionsForSubj(curKid, TODAYSTR, s.key);
+    const totalMins = sessions.reduce((sum,ses)=>sum+calcMin(ses.start,ses.end),0);
     const el = document.createElement('div');
     el.className = 'scard';
-    el.innerHTML = `
-      <div class="scard-hdr" onclick="toggleBody('bd_${s.key}', this)">
-        <div class="scard-left">
-          <div class="scard-dot" style="background:${s.color}"></div>
-          <span class="scard-name">${s.name}</span>
-        </div>
-        <div class="scard-right">
-          <span class="scard-mins" id="bdg_${s.key}" style="color:${s.color}">${mins>0?mins+'분':''}</span>
-          <span class="scard-arrow" id="arr_${s.key}">▼</span>
-        </div>
-      </div>
-      <div class="scard-body" id="bd_${s.key}">
-        <div class="time-row">
-          <span class="time-label">시작</span>
-          <input type="time" class="time-input" id="sv_${s.key}" value="${sd.start}" onchange="onTime('${s.key}')">
-        </div>
-        <div class="time-row">
-          <span class="time-label">종료</span>
-          <input type="time" class="time-input" id="ev_${s.key}" value="${sd.end}" onchange="onTime('${s.key}')">
-          <span class="time-mins" id="md_${s.key}" style="color:${s.color}">${mins>0?mins+'분':'-'}</span>
-        </div>
-        <textarea class="memo-input" id="mm_${s.key}" placeholder="공부한 내용을 메모하세요...">${sd.memo||''}</textarea>
-        <button class="chk-btn ${isDone?'done':'undone'}" id="cb_${s.key}" onclick="toggleDone('${s.key}')">
-          ${isDone?'✓ 완료! 잘했어요':'완료 체크'}
-        </button>
-      </div>`;
+    el.id = 'scard_'+s.key;
+    el.innerHTML = buildSubjCard(s, sessions, totalMins);
     wrap.appendChild(el);
   });
   updateSummary();
 }
+
+function buildSubjCard(s, sessions, totalMins){
+  let sessionsHtml = sessions.map((ses,i)=>buildSessionHtml(s,i,ses)).join('');
+  return \`<div class="scard-hdr" onclick="toggleBody('bd_\${s.key}', this)">
+    <div class="scard-left">
+      <div class="scard-dot" style="background:\${s.color}"></div>
+      <span class="scard-name">\${s.name}</span>
+    </div>
+    <div class="scard-right">
+      <span class="scard-mins" id="bdg_\${s.key}" style="color:\${s.color}">\${totalMins>0?totalMins+'분':''}</span>
+      <span class="scard-arrow" id="arr_\${s.key}">▼</span>
+    </div>
+  </div>
+  <div class="scard-body" id="bd_\${s.key}">
+    <div id="sessions_\${s.key}">\${sessionsHtml}</div>
+    <button onclick="addSession('\${s.key}')"
+      style="width:100%;margin-top:8px;padding:9px;border-radius:8px;border:1px dashed var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit">
+      + 세션 추가 (같은 과목 여러 번 공부)
+    </button>
+  </div>\`;
+}
+
+function buildSessionHtml(s, idx, ses){
+  const mins = calcMin(ses.start, ses.end);
+  const isDone = ses.done || mins >= 10;
+  const showDel = idx > 0;
+  return \`<div class="session-wrap" id="ses_\${s.key}_\${idx}" style="border-top:\${idx>0?'1px dashed var(--border)':'none'};padding-top:\${idx>0?'10px':'0'}">
+    \${idx>0?'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-size:11px;color:var(--text3)">세션 '+(idx+1)+'</span><button onclick="removeSession(\'\${s.key}\',\${idx})" style="background:none;border:none;color:#E53935;font-size:12px;cursor:pointer;padding:2px 6px">✕ 삭제</button></div>':''}
+    <div class="time-row">
+      <span class="time-label">시작</span>
+      <input type="time" class="time-input" id="sv_\${s.key}_\${idx}" value="\${ses.start}" onchange="onTime('\${s.key}',\${idx})">
+    </div>
+    <div class="time-row">
+      <span class="time-label">종료</span>
+      <input type="time" class="time-input" id="ev_\${s.key}_\${idx}" value="\${ses.end}" onchange="onTime('\${s.key}',\${idx})">
+      <span class="time-mins" id="md_\${s.key}_\${idx}" style="color:\${s.color}">\${mins>0?mins+'분':'-'}</span>
+    </div>
+    <textarea class="memo-input" id="mm_\${s.key}_\${idx}" placeholder="공부한 내용 메모...">\${ses.memo||''}</textarea>
+    <button class="chk-btn \${isDone?'done':'undone'}" id="cb_\${s.key}_\${idx}" onclick="toggleDone('\${s.key}',\${idx})">
+      \${isDone?'✓ 완료! 잘했어요':'완료 체크'}
+    </button>
+  </div>\`;
+}
+
 
 function toggleBody(id, hdr){
   const body = document.getElementById(id);
@@ -713,20 +740,50 @@ function toggleBody(id, hdr){
   arrow.classList.toggle('open', !isOpen);
 }
 
-function onTime(key){
-  const s = document.getElementById('sv_'+key)?.value;
-  const e = document.getElementById('ev_'+key)?.value;
+function onTime(key, idx){
+  const s = document.getElementById('sv_'+key+'_'+idx)?.value;
+  const e = document.getElementById('ev_'+key+'_'+idx)?.value;
   const m = calcMin(s, e);
   const subj = KIDS[curKid].subjects.find(x=>x.key===key);
-  document.getElementById('md_'+key).textContent = m>0?m+'분':'-';
-  document.getElementById('bdg_'+key).textContent = m>0?m+'분':'';
-  const btn = document.getElementById('cb_'+key);
+  document.getElementById('md_'+key+'_'+idx).textContent = m>0?m+'분':'-';
+  // 총합 업데이트
+  const sessions = getSessionCount(key);
+  let total=0;
+  for(let i=0;i<sessions;i++){
+    const sv=document.getElementById('sv_'+key+'_'+i);
+    const ev=document.getElementById('ev_'+key+'_'+i);
+    if(sv&&ev) total+=calcMin(sv.value,ev.value);
+  }
+  document.getElementById('bdg_'+key).textContent = total>0?total+'분':'';
+  const btn = document.getElementById('cb_'+key+'_'+idx);
   if(btn && m>=10){ btn.className='chk-btn done'; btn.textContent='✓ 완료! 잘했어요'; }
   updateSummary();
 }
 
-function toggleDone(key){
-  const btn = document.getElementById('cb_'+key);
+function getSessionCount(key){
+  let i=0;
+  while(document.getElementById('ses_'+key+'_'+i)) i++;
+  return i||1;
+}
+
+function addSession(key){
+  const subj = KIDS[curKid].subjects.find(x=>x.key===key);
+  const cnt = getSessionCount(key);
+  const wrap = document.getElementById('sessions_'+key);
+  const div = document.createElement('div');
+  div.id = 'ses_'+key+'_'+cnt;
+  div.innerHTML = buildSessionHtml(subj, cnt, {start:'',end:'',memo:'',done:false});
+  wrap.appendChild(div);
+}
+
+function removeSession(key, idx){
+  const el = document.getElementById('ses_'+key+'_'+idx);
+  if(el) el.remove();
+  updateSummary();
+}
+
+function toggleDone(key, idx){
+  const btn = document.getElementById('cb_'+key+'_'+idx);
   const was = btn.classList.contains('done');
   btn.className = 'chk-btn '+(was?'undone':'done');
   btn.textContent = was?'완료 체크':'✓ 완료! 잘했어요';
@@ -735,9 +792,12 @@ function toggleDone(key){
 function updateSummary(){
   let total = 0;
   KIDS[curKid].subjects.forEach(s=>{
-    const sv = document.getElementById('sv_'+s.key);
-    const ev = document.getElementById('ev_'+s.key);
-    if(sv&&ev) total += calcMin(sv.value, ev.value);
+    const cnt = getSessionCount(s.key);
+    for(let i=0;i<cnt;i++){
+      const sv=document.getElementById('sv_'+s.key+'_'+i);
+      const ev=document.getElementById('ev_'+s.key+'_'+i);
+      if(sv&&ev) total+=calcMin(sv.value,ev.value);
+    }
   });
   const goal = getGoal(curKid);
   const pct = Math.min(100, Math.round(total/goal*100));
@@ -756,12 +816,23 @@ function updateSummary(){
 function getCurrentData(){
   const data = {subjects:{}};
   KIDS[curKid].subjects.forEach(s=>{
-    const sv=document.getElementById('sv_'+s.key), ev=document.getElementById('ev_'+s.key);
-    const mv=document.getElementById('mm_'+s.key), btn=document.getElementById('cb_'+s.key);
-    data.subjects[s.key] = {
-      start: sv?sv.value:'', end: ev?ev.value:'',
-      memo: mv?mv.value:'', done: btn?btn.classList.contains('done'):false
-    };
+    const cnt = getSessionCount(s.key);
+    const sessions = [];
+    for(let i=0;i<cnt;i++){
+      const sv=document.getElementById('sv_'+s.key+'_'+i);
+      const ev=document.getElementById('ev_'+s.key+'_'+i);
+      const mv=document.getElementById('mm_'+s.key+'_'+i);
+      const btn=document.getElementById('cb_'+s.key+'_'+i);
+      // 시작 또는 종료 중 하나라도 입력된 세션만 저장
+      if(sv&&ev&&(sv.value||ev.value||( mv&&mv.value))){
+        sessions.push({
+          start: sv?sv.value:'', end: ev?ev.value:'',
+          memo: mv?mv.value:'', done: btn?btn.classList.contains('done'):false
+        });
+      }
+    }
+    if(sessions.length===0) sessions.push({start:'',end:'',memo:'',done:false});
+    data.subjects[s.key] = sessions;
   });
   return data;
 }
@@ -934,7 +1005,7 @@ function clearAll(){
 }
 
 // 설정 자동 주입 (파일에 내장된 값)
-const PRESET_URL = 'https://script.google.com/macros/s/AKfycbzXAKN47jhpA0npkSc8wpB4KQriuwqi4v4TNzvVlBKetRNTv8OART6nSVR2hyuYO7-M5A/exec';
+const PRESET_URL = 'https://script.google.com/macros/s/AKfycbxmq58iXt2OS62JKyV1QjeKAXbToLeOOTTBqYdkKVCsYDf8jWlj_MryB7nnzR8w2Z7Tpw/exec';
 const PRESET_ID  = '18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
 if(!ls('sheetCfg')){
   sv('sheetCfg', {url: PRESET_URL, id: PRESET_ID});
