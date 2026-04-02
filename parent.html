@@ -147,7 +147,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 <script>
 const SHEET_ID='18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyyGyq8c_crbYRtQRpXcr6XJsq8Pn50pBRAEkWCbRIYmipb0lyebNNopXlkmDvhwrdZnA/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwyS8xe3LMBMTmVPPd3TFWbfZgzsRXTrXH0qtprFBufucHIKrQ-Dm0_5xkQ4a1kx1CjsQ/exec';
 
 // 과목 이름을 시트에 저장된 이름(한글)과 일치시킴
 const KIDS=[
@@ -177,12 +177,14 @@ function fmtMin(m){
 }
 
 function normDate(v){
-  if(!v) return '';
+  if(!v && v!==0) return '';
   if(v instanceof Date){
-    const y=v.getFullYear(),m=String(v.getMonth()+1).padStart(2,'0'),d=String(v.getDate()).padStart(2,'0');
-    return y+'-'+m+'-'+d;
+    // 한국시간(UTC+9) 기준으로 변환
+    const kst = new Date(v.getTime() + 9*60*60*1000);
+    return kst.toISOString().slice(0,10);
   }
-  const s=String(v).trim().replace(/\//g,'-');
+  const s = String(v).trim().replace(/\//g,'-').replace(/\./g,'-');
+  // "2026-04-01T..." 형식도 처리
   return s.slice(0,10);
 }
 
@@ -203,13 +205,22 @@ async function fetchSheet(kidName,month){
 function buildByDate(rows){
   const bd={};
   rows.forEach(r=>{
-    const ds=normDate(r['날짜']||r['date']||'');
-    if(!ds||ds.length<10) return;
-    const subj=String(r['과목']||r['subject']||'').trim();
-    const mins=parseInt(r['분']||r['minutes']||0)||0;
-    if(!bd[ds]) bd[ds]={total:0};
-    bd[ds][subj]=(bd[ds][subj]||0)+mins;
-    bd[ds].total=(bd[ds].total||0)+mins;
+    // 날짜: 키가 '날짜'인 것 우선, 없으면 첫번째 값 사용
+    const rawDate = r['날짜'] !== undefined ? r['날짜'] : Object.values(r)[0];
+    const ds = normDate(rawDate);
+    if(!ds || ds.length < 10 || !ds.startsWith('20')) return;
+
+    // 과목: 키가 '과목'인 것
+    const subj = String(r['과목'] !== undefined ? r['과목'] : Object.values(r)[1] || '').trim();
+    if(!subj) return;
+
+    // 분: 숫자로 변환
+    const rawMin = r['분'] !== undefined ? r['분'] : Object.values(r)[4];
+    const mins = parseInt(rawMin) || 0;
+
+    if(!bd[ds]) bd[ds] = {total:0};
+    bd[ds][subj] = (bd[ds][subj]||0) + mins;
+    bd[ds].total = (bd[ds].total||0) + mins;
   });
   return bd;
 }
@@ -224,7 +235,11 @@ function calcStats(bd,kidIdx){
     const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const day=bd[ds]||{};
     const dt=day.total||0;
-    k.subjects.forEach(s=>{ subjTotals[s.name]+=(day[s.name]||0); });
+    k.subjects.forEach(s=>{
+      // 과목명이 정확히 일치하는 것만 집계
+      const matched = Object.keys(day).find(key=>key===s.name);
+      subjTotals[s.name]+= matched ? (day[matched]||0) : 0;
+    });
     if(dt>0){studyDays++;curStr++;}else{maxStr=Math.max(maxStr,curStr);curStr=0;}
     if(dt>=k.goal) goalDays++;
     totalAll+=dt;
