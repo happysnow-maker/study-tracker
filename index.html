@@ -200,7 +200,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 <script>
 const SHEET_ID = '18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmq58iXt2OS62JKyV1QjeKAXbToLeOOTTBqYdkKVCsYDf8jWlj_MryB7nnzR8w2Z7Tpw/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoRXsoefHfPlR3KWSji7HJ2WZKK-uQbZDP0qX1n3GHRG6SpoOsa-BEludyDrr0KxDTWQ/exec';
 
 const KIDS = [
   { name:'한별', grade:'중1', color:'#1A237E', light:'#E8EAF6',
@@ -498,6 +498,10 @@ async function saveToSheet(){
     hint.textContent=txt.includes('ok')?'✓ 저장 완료! '+new Date().toLocaleTimeString():'오류가 발생했어요.';
   }catch{ hint.textContent='연결 실패. 인터넷 연결을 확인해주세요.'; }
   btn.disabled=false; btn.textContent='구글 시트에 저장';
+  // 저장 성공 시 시트에서 재로드해서 동기화
+  if(hint.textContent.includes('완료')){
+    await loadTodayFromSheet(curKid);
+  }
 }
 
 // ── 달력 ──
@@ -593,11 +597,62 @@ function showStamp(total, goal){
 }
 function closeStamp(){ document.getElementById('stampOv').classList.remove('show'); }
 
+// ── 시트에서 오늘 데이터 불러오기 ──
+async function loadTodayFromSheet(ki){
+  try{
+    const k=KIDS[ki];
+    const mo=TODAY.getMonth()+1;
+    const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(k.name)+'&month='+mo;
+    const res=await fetch(url);
+    if(!res.ok) return;
+    const rows=await res.json();
+    if(!Array.isArray(rows)||rows.length===0) return;
+
+    // 오늘 날짜 행만 필터
+    const todayRows=rows.filter(r=>String(r['날짜']||'').slice(0,10)===TODAYSTR);
+    if(todayRows.length===0) return;
+
+    // 과목별로 세션 배열 구성
+    const dayData={};
+    todayRows.forEach(function(r){
+      const subjName=String(r['과목']||'').trim();
+      // 과목명 → key 변환
+      const subjInfo=k.subjects.find(s=>s.name===subjName);
+      if(!subjInfo) return;
+      if(!dayData[subjInfo.key]) dayData[subjInfo.key]=[];
+      dayData[subjInfo.key].push({
+        start:String(r['시작']||''),
+        end:String(r['종료']||''),
+        memo:String(r['메모']||''),
+        done:true
+      });
+    });
+
+    // localStorage에 저장 (시트 데이터가 더 최신이므로 덮어쓰기)
+    const existing=lsGet('day_'+ki+'_'+TODAYSTR)||{};
+    Object.keys(dayData).forEach(function(key){
+      existing[key]=dayData[key];
+    });
+    lsSet('day_'+ki+'_'+TODAYSTR, existing);
+    console.log(k.name+' 오늘 데이터 시트에서 로드 완료:', Object.keys(dayData).length+'과목');
+  }catch(e){
+    console.warn('시트 로드 실패 (오프라인이거나 설정 오류):', e.message);
+  }
+}
+
 // ── 초기화 ──
 const WN=['일','월','화','수','목','금','토'];
 document.getElementById('hdrDate').textContent=TODAY.getFullYear()+'년 '+(TODAY.getMonth()+1)+'월 '+TODAY.getDate()+'일 ('+WN[TODAY.getDay()]+')';
 applyTheme();
-buildCards();
+
+// 시트에서 오늘 데이터 불러온 후 카드 빌드
+(async function(){
+  // 로딩 표시
+  document.getElementById('saveHint').textContent='오늘 데이터 불러오는 중...';
+  await Promise.all([loadTodayFromSheet(0), loadTodayFromSheet(1)]);
+  document.getElementById('saveHint').textContent='';
+  buildCards();
+})();
 </script>
 </body>
 </html>
