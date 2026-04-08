@@ -61,8 +61,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .cal-day{
   aspect-ratio:1;border-radius:7px;font-size:12px;font-weight:500;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:var(--card);border:1px solid var(--border);gap:1px;
-  padding:2px 0;
+  background:var(--card);border:1px solid var(--border);gap:0px;
+  padding:2px 1px;overflow:hidden;
 }
 .cal-day.empty{background:transparent;border:none}
 .cal-day.today{border:2px solid var(--hb);color:var(--hb);font-weight:700}
@@ -164,7 +164,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 <script>
 const SHEET_ID='18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzXAKN47jhpA0npkSc8wpB4KQriuwqi4v4TNzvVlBKetRNTv8OART6nSVR2hyuYO7-M5A/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzoRXsoefHfPlR3KWSji7HJ2WZKK-uQbZDP0qX1n3GHRG6SpoOsa-BEludyDrr0KxDTWQ/exec';
 
 // 과목 이름을 시트에 저장된 이름(한글)과 일치시킴
 const KIDS=[
@@ -361,12 +361,12 @@ async function renderCal(){
     el.className=cls.join(' ');
     const s0=t0>=KIDS[0].goal&&t0>0?'🏆':'';
     const s1=t1>=KIDS[1].goal&&t1>0?'🏆':'';
-    el.innerHTML='<span>'+d+'</span>'+
-      ((t0>0||t1>0)?'<div class="cal-dots">'+
-        (t0>0?'<div class="cal-dot" style="background:'+KIDS[0].color+'"></div>':'')+
-        (t1>0?'<div class="cal-dot" style="background:'+KIDS[1].color+'"></div>':'')+
-      '</div>':'')+
-      (s0||s1?'<span class="cal-stamp">'+s0+s1+'</span>':'');
+    // 시간 표시 (60분 이상은 시간단위)
+    function fmtT(m){ if(!m)return ''; return m>=60?Math.floor(m/60)+'h'+(m%60?m%60+'m':''):m+'m'; }
+    el.innerHTML='<span>'+d+'</span>'
+      +(t0>0?'<span style="font-size:9px;color:'+KIDS[0].color+';font-weight:700">'+fmtT(t0)+'</span>':'')
+      +(t1>0?'<span style="font-size:9px;color:'+KIDS[1].color+';font-weight:700">'+fmtT(t1)+'</span>':'')
+      +(s0||s1?'<span style="font-size:9px">'+s0+s1+'</span>':'');
     if(t0>0||t1>0){
       el.style.cursor='pointer';
       el.onclick=(function(ds,t0,t1){return function(){showMemo(ds,t0,t1);};})(ds,t0,t1);
@@ -488,8 +488,15 @@ async function showMemo(ds, t0, t1){
   const wd = WN[date.getDay()];
   const label = ds.slice(5).replace('-','/') + ' (' + wd + ')';
 
+  const tot0 = r0.filter(r=>String(r['날짜']||'').slice(0,10)===ds).reduce((s,r)=>s+(parseInt(r['분'])||0),0);
+  const tot1 = r1.filter(r=>String(r['날짜']||'').slice(0,10)===ds).reduce((s,r)=>s+(parseInt(r['분'])||0),0);
+  function fmtMin(m){ const h=Math.floor(m/60),min=m%60; return h>0?h+'시간'+(min?min+'분':''):m+'분'; }
   document.getElementById('memoTitle').textContent = label + ' 학습 기록';
-  document.getElementById('memoSub').textContent = '클릭한 날짜의 과목별 공부 내용이에요';
+  const subLine = [
+    tot0>0?'한별 '+fmtMin(tot0):'',
+    tot1>0?'한솔 '+fmtMin(tot1):''
+  ].filter(Boolean).join('  |  ');
+  document.getElementById('memoSub').textContent = subLine || '공부 기록이 없어요';
 
   let html = '';
   const addRows = function(rows, kid){
