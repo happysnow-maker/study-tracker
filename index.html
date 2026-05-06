@@ -4,34 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>학습 체크표</title>
+<title>가족 학습 체크표</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
 :root{
   --bg:#F4F6F9;--card:#fff;--border:rgba(0,0,0,0.08);
   --text:#1A1A2E;--text2:#6B7280;--text3:#9CA3AF;
-  --accent:#1A237E;--accent-light:#E8EAF6;
-  --r:14px;--sh:0 2px 10px rgba(0,0,0,0.06);
+  --accent:#1A237E;--r:14px;--sh:0 2px 10px rgba(0,0,0,0.06);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);padding-bottom:80px}
 
-.header{padding:max(48px,calc(40px + env(safe-area-inset-top))) 16px 20px;transition:background .3s}
-.hdr-row{display:flex;align-items:flex-start;justify-content:space-between}
+/* 헤더 */
+.header{padding:max(48px,calc(40px + env(safe-area-inset-top))) 16px 16px;transition:background .3s}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 .hdr-title{font-size:17px;font-weight:700;color:#fff}
 .hdr-date{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
-.kid-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.kid-btn{padding:9px 0;border-radius:12px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.13);color:rgba(255,255,255,.85);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all .2s}
-.kid-btn.on{background:#fff;border-color:#fff}
 
+/* 멤버 전환 버튼 - 2x2 그리드 */
+.member-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.mbtn{padding:9px 6px;border-radius:11px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.13);color:rgba(255,255,255,.8);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:all .2s;line-height:1.3}
+.mbtn .mbtn-sub{font-size:10px;font-weight:400;opacity:.8}
+.mbtn.on{background:#fff;border-color:#fff}
+
+/* 탭 */
 .tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.tab{flex:1;padding:12px 2px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);border:none;border-bottom:2.5px solid transparent;background:none;font-family:inherit}
+.tab{flex:1;padding:11px 2px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;color:var(--text3);border:none;border-bottom:2.5px solid transparent;background:none;font-family:inherit}
 .tab.on{color:var(--accent);border-bottom-color:var(--accent)}
 
 .page{display:none;padding:14px}
 .page.on{display:block}
 
-/* 요약 */
+/* 요약 카드 */
 .sum-card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
 .sum-lbl{font-size:12px;color:var(--text2)}
 .sum-total{font-size:32px;font-weight:700;color:var(--text);line-height:1.1;margin:4px 0}
@@ -50,7 +54,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .scard-total{font-size:13px;font-weight:700}
 .scard-arrow{font-size:11px;color:var(--text3);transition:transform .2s;display:inline-block}
 .scard-body{display:none;border-top:1px solid var(--border)}
-
 .session{padding:12px 16px;border-bottom:1px dashed var(--border)}
 .session:last-child{border-bottom:none}
 .session-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
@@ -63,32 +66,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .time-mins{font-size:13px;font-weight:700;min-width:40px;text-align:right;flex-shrink:0}
 .memo-inp{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;resize:none;height:52px;outline:none;line-height:1.5}
 .memo-inp:focus{border-color:var(--accent)}
-.chk-btn{width:100%;margin-top:8px;padding:11px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.chk-btn{width:100%;margin-top:8px;padding:11px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
 .chk-btn.done{background:#E8F5E9;color:#2E7D32}
 .chk-btn.undone{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.add-ses-btn{width:calc(100% - 32px);margin:10px 16px;padding:10px;border:1px dashed var(--border);border-radius:9px;background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit}
 
-.add-session-btn{width:calc(100% - 32px);margin:10px 16px;padding:10px;border:1px dashed var(--border);border-radius:9px;background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit}
-.add-session-btn:active{background:var(--bg)}
-
-.save-btn{width:100%;padding:14px;color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;transition:opacity .15s}
-.save-btn:active{opacity:.85}
+.save-btn{width:100%;padding:14px;color:#fff;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
 .save-btn:disabled{opacity:.5}
 .save-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:8px;min-height:18px}
 
 /* 달력 */
 .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .cal-nav{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:9px;font-size:14px;cursor:pointer;color:var(--text);font-family:inherit}
-.cal-title{font-size:15px;font-weight:700}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-title-txt{font-size:15px;font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .cal-dow{font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:3px 0}
 .cal-dow:first-child{color:#E53935}.cal-dow:last-child{color:#1E88E5}
-.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--border);gap:1px}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--border);gap:0;overflow:hidden;padding:1px}
 .cal-day.empty{background:transparent;border:none}
 .cal-day.today{font-weight:700}
 .cal-day.has-data{background:#E8F5E9;border-color:#A5D6A7}
 .cal-day.sun{color:#E53935}.cal-day.sat{color:#1E88E5}
-.cal-min{font-size:9px;color:#388E3C}
-.cal-stamp{font-size:10px}
 
 /* 통계 */
 .stat-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:12px}
@@ -103,12 +101,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .m-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
 .m-val{font-size:22px;font-weight:700;color:var(--text)}
 .m-unit{font-size:12px;font-weight:400;color:var(--text2);margin-left:2px}
-
-/* 목표 설정 */
 .goal-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .goal-row label{font-size:13px;color:var(--text);flex:1}
 .goal-inp{width:72px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);font-size:14px;font-weight:700;font-family:inherit;text-align:center;outline:none}
 .goal-save{padding:9px 14px;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* 가족 탭 */
+.family-member{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.family-member-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.family-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;flex-shrink:0}
+.family-name{font-size:15px;font-weight:700;color:var(--text)}
+.family-grade{font-size:11px;color:var(--text3)}
+.family-total{margin-left:auto;font-size:18px;font-weight:700}
+.family-subj-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.family-subj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.family-subj-name{font-size:13px;color:var(--text2);flex:1}
+.family-subj-min{font-size:12px;font-weight:600}
+.family-memo{font-size:12px;color:var(--text3);margin-top:2px;margin-left:16px;font-style:italic}
+.family-empty{font-size:13px;color:var(--text3);text-align:center;padding:12px 0}
+.family-date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.family-date-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;color:var(--text);font-family:inherit}
+.family-date-lbl{font-size:14px;font-weight:700;color:var(--text)}
 
 /* 도장 팝업 */
 .stamp-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -117,7 +130,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .stamp-ov.show .stamp-box{transform:scale(1)}
 .stamp-img{font-size:80px;line-height:1;display:block;margin-bottom:10px;animation:sBounce .5s cubic-bezier(.34,1.56,.64,1) .1s both}
 @keyframes sBounce{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(-4deg)}}
-.stamp-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px}
+.stamp-title{font-size:20px;font-weight:700;margin-bottom:6px}
 .stamp-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;white-space:pre-line}
 .stamp-close{width:100%;padding:12px;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
 </style>
@@ -125,28 +138,25 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <body>
 
 <div class="header" id="mainHdr">
-  <div class="hdr-row">
+  <div class="hdr-top">
     <div>
-      <div class="hdr-title">학습 체크표</div>
+      <div class="hdr-title" id="hdrTitle">가족 학습 체크표</div>
       <div class="hdr-date" id="hdrDate"></div>
     </div>
   </div>
-  <div class="kid-switch">
-    <button class="kid-btn on" id="kbtn0" onclick="switchKid(0)">한별 (중1)</button>
-    <button class="kid-btn" id="kbtn1" onclick="switchKid(1)">한솔 (초3)</button>
-  </div>
+  <div class="member-grid" id="memberGrid"></div>
 </div>
 
-<div class="tab-bar" id="tabBar">
+<div class="tab-bar">
   <button class="tab on" id="tab0" onclick="gotoTab(0)">오늘 기록</button>
   <button class="tab" id="tab1" onclick="gotoTab(1)">달력</button>
   <button class="tab" id="tab2" onclick="gotoTab(2)">통계</button>
+  <button class="tab" id="tab3" onclick="gotoTab(3)">가족 현황</button>
 </div>
 
-<!-- 오늘 기록 -->
 <div class="page on" id="page0">
   <div class="sum-card">
-    <div class="sum-lbl">오늘 총 순공시간</div>
+    <div class="sum-lbl">오늘 총 공부시간</div>
     <div><span class="sum-total" id="sumTotal">0</span><span class="sum-unit">분</span></div>
     <div class="goal-bar-bg"><div class="goal-bar" id="goalBar" style="width:0%"></div></div>
     <div class="praise" id="praiseMsg">과목 카드를 열어 시간을 입력해보세요!</div>
@@ -156,17 +166,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   <div class="save-hint" id="saveHint"></div>
 </div>
 
-<!-- 달력 -->
 <div class="page" id="page1">
   <div class="cal-top">
     <button class="cal-nav" onclick="chMonth(-1)">◀</button>
-    <span class="cal-title" id="calTitle"></span>
+    <span class="cal-title-txt" id="calTitle"></span>
     <button class="cal-nav" onclick="chMonth(1)">▶</button>
   </div>
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
-<!-- 통계 -->
 <div class="page" id="page2">
   <div class="stat-card">
     <div class="stat-ttl" id="statTtl">이번 달 과목별 공부시간</div>
@@ -180,7 +188,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="stat-ttl">⏱ 하루 목표 시간</div>
     <div class="goal-row">
       <label id="goalLbl">목표</label>
-      <input type="number" class="goal-inp" id="goalInp" min="10" max="600" step="10" value="120">
+      <input type="number" class="goal-inp" id="goalInp" min="10" max="600" step="10" value="60">
       <span style="font-size:13px;color:var(--text2)">분</span>
       <button class="goal-save" id="goalSaveBtn" onclick="saveGoal()">저장</button>
     </div>
@@ -188,7 +196,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
 </div>
 
-<!-- 도장 팝업 -->
+<div class="page" id="page3">
+  <div class="family-date-nav">
+    <button class="family-date-btn" onclick="chFamilyDate(-1)">◀</button>
+    <span class="family-date-lbl" id="familyDateLbl"></span>
+    <button class="family-date-btn" onclick="chFamilyDate(1)">▶</button>
+  </div>
+  <button id="familyRefreshBtn" onclick="refreshFamily()"
+    style="width:100%;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text2);margin-bottom:12px">
+    ↻ 가족 기록 새로고침
+  </button>
+  <div id="familyLoading" style="display:none;text-align:center;padding:16px;font-size:13px;color:var(--text3)">불러오는 중...</div>
+  <div id="familyContent"></div>
+</div>
+
 <div class="stamp-ov" id="stampOv" onclick="if(event.target===this)closeStamp()">
   <div class="stamp-box">
     <span class="stamp-img" id="stampImg">🏆</span>
@@ -202,59 +223,66 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 const SHEET_ID = '18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoRXsoefHfPlR3KWSji7HJ2WZKK-uQbZDP0qX1n3GHRG6SpoOsa-BEludyDrr0KxDTWQ/exec';
 
-const KIDS = [
-  { name:'한별', grade:'중1', color:'#1A237E', light:'#E8EAF6',
-    subjects:[
-      {key:'math', name:'수학',  color:'#1565C0'},
-      {key:'eng',  name:'영어',  color:'#2E7D32'},
-      {key:'kor',  name:'국어',  color:'#E65100'},
-      {key:'soc',  name:'사회',  color:'#4527A0'},
-      {key:'sci',  name:'과학',  color:'#B71C1C'},
-      {key:'book', name:'독서(신문,독서평설 포함)', color:'#00695C'},
+const MEMBERS = [
+  { key:'hanbul', name:'한별', grade:'중1', emoji:'👧', color:'#1A237E', light:'#E8EAF6',
+    goal:120, subjects:[
+      {key:'math',name:'수학',color:'#1565C0'},
+      {key:'eng', name:'영어',color:'#2E7D32'},
+      {key:'kor', name:'국어',color:'#E65100'},
+      {key:'soc', name:'사회',color:'#4527A0'},
+      {key:'sci', name:'과학',color:'#B71C1C'},
+      {key:'book',name:'독서(신문,독서평설 포함)',color:'#00695C'},
     ]},
-  { name:'한솔', grade:'초3', color:'#1B5E20', light:'#E8F5E9',
-    subjects:[
-      {key:'math', name:'수학',  color:'#1565C0'},
-      {key:'eng',  name:'영어',  color:'#2E7D32'},
-      {key:'dok',  name:'독서(독서평설 포함)', color:'#E65100'},
-      {key:'only', name:'온리원', color:'#6A1B9A'},
+  { key:'hansol', name:'한솔', grade:'초3', emoji:'👦', color:'#1B5E20', light:'#E8F5E9',
+    goal:60, subjects:[
+      {key:'math',name:'수학',color:'#1565C0'},
+      {key:'eng', name:'영어',color:'#2E7D32'},
+      {key:'kor', name:'국어',color:'#E65100'},
+      {key:'sci', name:'과학',color:'#B71C1C'},
+      {key:'dok', name:'독서(독서평설 포함)',color:'#00695C'},
+      {key:'only',name:'온리원',color:'#6A1B9A'},
+    ]},
+  { key:'dad', name:'아빠', grade:'', emoji:'👨', color:'#0277BD', light:'#E1F5FE',
+    goal:60, subjects:[
+      {key:'read',name:'독서',color:'#0277BD'},
+      {key:'eng', name:'영어공부',color:'#00695C'},
+      {key:'etc', name:'기타',color:'#546E7A'},
+    ]},
+  { key:'mom', name:'엄마', grade:'', emoji:'👩', color:'#AD1457', light:'#FCE4EC',
+    goal:60, subjects:[
+      {key:'read',name:'독서',color:'#AD1457'},
+      {key:'eng', name:'영어공부',color:'#00695C'},
+      {key:'jpn', name:'일본어공부',color:'#E91E63'},
+      {key:'etc', name:'기타',color:'#546E7A'},
     ]},
 ];
 
 const TODAY = new Date();
 const TODAYSTR = TODAY.toISOString().slice(0,10);
-let curKid = 0, curTab = 0;
+let curMember = 0, curTab = 0;
 let calYear = TODAY.getFullYear(), calMonth = TODAY.getMonth();
+let familyDate = TODAYSTR;
 let stampShown = false;
 
-// ── 로컬 스토리지 ──
 function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch{ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
 
-function getGoal(ki){ return parseInt(lsGet('goal_'+ki) || (ki===0?120:60)); }
+function getGoal(mi){ return parseInt(lsGet('goal_'+MEMBERS[mi].key) || MEMBERS[mi].goal); }
 function saveGoal(){
-  const v = parseInt(document.getElementById('goalInp').value) || 60;
-  lsSet('goal_'+curKid, v);
-  stampShown = false;
-  updateSummary();
+  const v = parseInt(document.getElementById('goalInp').value) || 30;
+  lsSet('goal_'+MEMBERS[curMember].key, v);
+  stampShown = false; updateSummary();
   const btn = document.getElementById('goalSaveBtn');
   btn.textContent='✓ 저장!'; btn.style.background='#2E7D32';
   setTimeout(()=>{ btn.textContent='저장'; btn.style.background=''; }, 1200);
 }
 
-// 세션 데이터: [{start, end, memo, done}]
-function getSessions(ki, dateStr, subjKey){
-  const day = lsGet('day_'+ki+'_'+dateStr) || {};
+function getSessions(mi, dateStr, subjKey){
+  const day = lsGet('day_'+MEMBERS[mi].key+'_'+dateStr) || {};
   const val = day[subjKey];
   if(!val) return [{start:'',end:'',memo:'',done:false}];
   if(Array.isArray(val)) return val.length ? val : [{start:'',end:'',memo:'',done:false}];
-  return [val]; // 구형 단일 객체 호환
-}
-
-function saveSessions(ki, dateStr, subjKey, sessions){
-  const day = lsGet('day_'+ki+'_'+dateStr) || {};
-  day[subjKey] = sessions;
-  lsSet('day_'+ki+'_'+dateStr, day);
+  return [val];
 }
 
 function calcMin(s, e){
@@ -263,42 +291,41 @@ function calcMin(s, e){
   const d=(eh*60+em)-(sh*60+sm); return d>0?d:0;
 }
 
+function fmtMin(m){
+  if(!m) return '0분';
+  const h=Math.floor(m/60), min=m%60;
+  return h>0?h+'시간'+(min?min+'분':''):m+'분';
+}
+
 // ── 테마 ──
 function applyTheme(){
-  const k = KIDS[curKid];
-  document.getElementById('mainHdr').style.background = k.color;
-  document.querySelectorAll('.tab.on').forEach(t=>{ t.style.color=k.color; t.style.borderBottomColor=k.color; });
-  document.getElementById('goalBar').style.background = k.color;
-  document.getElementById('goalSaveBtn').style.background = k.color;
-  document.getElementById('saveBtn').style.background = k.color;
-  document.getElementById('stampClose').style.background = k.color;
-  KIDS.forEach((_,i)=>{
-    const b = document.getElementById('kbtn'+i);
-    b.style.color = i===curKid ? k.color : '';
+  const m = MEMBERS[curMember];
+  document.getElementById('mainHdr').style.background = m.color;
+  document.querySelectorAll('.tab.on').forEach(t=>{ t.style.color=m.color; t.style.borderBottomColor=m.color; });
+  document.getElementById('goalBar').style.background = m.color;
+  document.getElementById('goalSaveBtn').style.background = m.color;
+  document.getElementById('saveBtn').style.background = m.color;
+  document.getElementById('stampClose').style.background = m.color;
+  document.querySelectorAll('.mbtn').forEach((b,i)=>{ b.style.color = i===curMember ? m.color : ''; });
+}
+
+// 멤버 버튼 생성
+function buildMemberGrid(){
+  const grid = document.getElementById('memberGrid');
+  grid.innerHTML = '';
+  MEMBERS.forEach((m,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'mbtn' + (i===0?' on':'');
+    btn.id = 'mbtn'+i;
+    btn.innerHTML = m.emoji+' '+m.name+(m.grade?'<br><span class="mbtn-sub">'+m.grade+'</span>':'');
+    btn.onclick = ()=>switchMember(i);
+    grid.appendChild(btn);
   });
 }
 
-// ── 탭 전환 ──
-function gotoTab(n){
-  curTab = n;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t=>{ t.classList.remove('on'); t.style.color=''; t.style.borderBottomColor=''; });
-  document.getElementById('page'+n).classList.add('on');
-  const tab = document.getElementById('tab'+n);
-  tab.classList.add('on');
-  tab.style.color = KIDS[curKid].color;
-  tab.style.borderBottomColor = KIDS[curKid].color;
-  if(n===1) renderCal();
-  if(n===2) renderStats();
-}
-
-// ── 아이 전환 ──
-function switchKid(ki){
-  curKid = ki;
-  KIDS.forEach((_,i)=>{
-    const b = document.getElementById('kbtn'+i);
-    b.classList.toggle('on', i===ki);
-  });
+function switchMember(mi){
+  curMember = mi;
+  document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('on', i===mi));
   applyTheme();
   stampShown = false;
   buildCards();
@@ -306,14 +333,29 @@ function switchKid(ki){
   if(curTab===2) renderStats();
 }
 
+// ── 탭 ──
+function gotoTab(n){
+  curTab = n;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>{ t.classList.remove('on'); t.style.color=''; t.style.borderBottomColor=''; });
+  document.getElementById('page'+n).classList.add('on');
+  const tab = document.getElementById('tab'+n);
+  tab.classList.add('on');
+  tab.style.color = MEMBERS[curMember].color;
+  tab.style.borderBottomColor = MEMBERS[curMember].color;
+  if(n===1) renderCal();
+  if(n===2) renderStats();
+  if(n===3) renderFamily();
+}
+
 // ── 카드 빌드 ──
 function buildCards(){
-  const k = KIDS[curKid];
+  const m = MEMBERS[curMember];
   const wrap = document.getElementById('subjCards');
   wrap.innerHTML = '';
-  k.subjects.forEach(s=>{
-    const sessions = getSessions(curKid, TODAYSTR, s.key);
-    const totalMins = sessions.reduce((sum,ses)=>sum+calcMin(ses.start,ses.end),0);
+  m.subjects.forEach(s=>{
+    const sessions = getSessions(curMember, TODAYSTR, s.key);
+    const totalMins = sessions.reduce((sum,ses)=>sum+calcMin(ses.start,ses.end), 0);
     const div = document.createElement('div');
     div.className = 'scard';
     div.innerHTML =
@@ -329,7 +371,7 @@ function buildCards(){
       +'</div>'
       +'<div class="scard-body" id="body_'+s.key+'">'
         +'<div id="sessions_'+s.key+'">'+buildSessionsHTML(s, sessions)+'</div>'
-        +'<button class="add-session-btn" onclick="addSession(\''+s.key+'\')">+ 같은 과목 세션 추가</button>'
+        +'<button class="add-ses-btn" onclick="addSession(\''+s.key+'\')">+ 같은 과목 세션 추가</button>'
       +'</div>';
     wrap.appendChild(div);
   });
@@ -337,17 +379,15 @@ function buildCards(){
 }
 
 function buildSessionsHTML(s, sessions){
-  return sessions.map(function(ses,i){ return buildOneSession(s,i,ses); }).join('');
+  return sessions.map((ses,i)=>buildOneSession(s,i,ses)).join('');
 }
 
 function buildOneSession(s, i, ses){
   const mins = calcMin(ses.start, ses.end);
   const done = ses.done || mins>=10;
   return '<div class="session" id="ses_'+s.key+'_'+i+'">'
-    +(i>0
-      ? '<div class="session-hdr"><span class="session-num">세션 '+(i+1)+'</span>'
-        +'<button class="session-del" onclick="removeSession(\''+s.key+'\','+i+')">✕ 삭제</button></div>'
-      : '')
+    +(i>0?'<div class="session-hdr"><span class="session-num">세션 '+(i+1)+'</span>'
+      +'<button class="session-del" onclick="removeSession(\''+s.key+'\','+i+')">✕ 삭제</button></div>':'')
     +'<div class="time-row">'
       +'<span class="time-lbl">시작</span>'
       +'<input type="time" class="time-inp" id="sv_'+s.key+'_'+i+'" value="'+(ses.start||'')+'" onchange="onTimeChange(\''+s.key+'\','+i+')">'
@@ -357,7 +397,7 @@ function buildOneSession(s, i, ses){
       +'<input type="time" class="time-inp" id="ev_'+s.key+'_'+i+'" value="'+(ses.end||'')+'" onchange="onTimeChange(\''+s.key+'\','+i+')">'
       +'<span class="time-mins" id="md_'+s.key+'_'+i+'" style="color:'+s.color+'">'+(mins>0?mins+'분':'-')+'</span>'
     +'</div>'
-    +'<textarea class="memo-inp" id="mm_'+s.key+'_'+i+'" placeholder="공부한 내용 메모...">'+(ses.memo||'')+'</textarea>'
+    +'<textarea class="memo-inp" id="mm_'+s.key+'_'+i+'" placeholder="공부한 내용...">'+(ses.memo||'')+'</textarea>'
     +'<button class="chk-btn '+(done?'done':'undone')+'" id="cb_'+s.key+'_'+i+'" onclick="toggleDone(\''+s.key+'\','+i+')">'
       +(done?'✓ 완료! 잘했어요':'완료 체크')
     +'</button>'
@@ -365,93 +405,91 @@ function buildOneSession(s, i, ses){
 }
 
 function toggleCard(key){
-  const body = document.getElementById('body_'+key);
-  const arr  = document.getElementById('arr_'+key);
-  const open = body.style.display === 'block';
-  body.style.display = open ? 'none' : 'block';
-  arr.style.transform = open ? '' : 'rotate(180deg)';
+  const body=document.getElementById('body_'+key);
+  const arr=document.getElementById('arr_'+key);
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arr.style.transform=open?'':'rotate(180deg)';
 }
 
 function onTimeChange(key, idx){
-  const sv = document.getElementById('sv_'+key+'_'+idx);
-  const ev = document.getElementById('ev_'+key+'_'+idx);
+  const sv=document.getElementById('sv_'+key+'_'+idx);
+  const ev=document.getElementById('ev_'+key+'_'+idx);
   if(!sv||!ev) return;
-  const m = calcMin(sv.value, ev.value);
+  const m=calcMin(sv.value, ev.value);
   document.getElementById('md_'+key+'_'+idx).textContent = m>0?m+'분':'-';
-  const btn = document.getElementById('cb_'+key+'_'+idx);
-  if(btn && m>=10){ btn.className='chk-btn done'; btn.textContent='✓ 완료! 잘했어요'; }
-  updateSubjTotal(key);
-  updateSummary();
+  const btn=document.getElementById('cb_'+key+'_'+idx);
+  if(btn&&m>=10){ btn.className='chk-btn done'; btn.textContent='✓ 완료! 잘했어요'; }
+  updateSubjTotal(key); updateSummary();
 }
 
 function updateSubjTotal(key){
-  let total = 0, i = 0;
+  let total=0, i=0;
   while(document.getElementById('ses_'+key+'_'+i)){
     const sv=document.getElementById('sv_'+key+'_'+i);
     const ev=document.getElementById('ev_'+key+'_'+i);
-    if(sv&&ev) total+=calcMin(sv.value,ev.value);
+    if(sv&&ev) total+=calcMin(sv.value, ev.value);
     i++;
   }
-  const el = document.getElementById('tot_'+key);
-  if(el) el.textContent = total>0?total+'분':'';
+  const el=document.getElementById('tot_'+key);
+  if(el) el.textContent=total>0?total+'분':'';
 }
 
 function toggleDone(key, idx){
-  const btn = document.getElementById('cb_'+key+'_'+idx);
+  const btn=document.getElementById('cb_'+key+'_'+idx);
   if(!btn) return;
-  const was = btn.classList.contains('done');
-  btn.className = 'chk-btn '+(was?'undone':'done');
-  btn.textContent = was?'완료 체크':'✓ 완료! 잘했어요';
+  const was=btn.classList.contains('done');
+  btn.className='chk-btn '+(was?'undone':'done');
+  btn.textContent=was?'완료 체크':'✓ 완료! 잘했어요';
 }
 
 function addSession(key){
-  const subj = KIDS[curKid].subjects.find(s=>s.key===key);
+  const subj=MEMBERS[curMember].subjects.find(s=>s.key===key);
   if(!subj) return;
-  let cnt = 0;
+  let cnt=0;
   while(document.getElementById('ses_'+key+'_'+cnt)) cnt++;
-  const wrap = document.getElementById('sessions_'+key);
-  const div = document.createElement('div');
-  div.innerHTML = buildOneSession(subj, cnt, {start:'',end:'',memo:'',done:false});
+  const wrap=document.getElementById('sessions_'+key);
+  const div=document.createElement('div');
+  div.innerHTML=buildOneSession(subj, cnt, {start:'',end:'',memo:'',done:false});
   wrap.appendChild(div.firstElementChild);
 }
 
 function removeSession(key, idx){
-  const el = document.getElementById('ses_'+key+'_'+idx);
+  const el=document.getElementById('ses_'+key+'_'+idx);
   if(el) el.remove();
-  updateSubjTotal(key);
-  updateSummary();
+  updateSubjTotal(key); updateSummary();
 }
 
 function updateSummary(){
-  let total = 0;
-  KIDS[curKid].subjects.forEach(s=>{
+  let total=0;
+  MEMBERS[curMember].subjects.forEach(s=>{
     let i=0;
     while(document.getElementById('ses_'+s.key+'_'+i)){
       const sv=document.getElementById('sv_'+s.key+'_'+i);
       const ev=document.getElementById('ev_'+s.key+'_'+i);
-      if(sv&&ev) total+=calcMin(sv.value,ev.value);
+      if(sv&&ev) total+=calcMin(sv.value, ev.value);
       i++;
     }
   });
-  const goal = getGoal(curKid);
-  const pct = Math.min(100, Math.round(total/goal*100));
-  document.getElementById('sumTotal').textContent = total;
-  document.getElementById('goalBar').style.width = pct+'%';
+  const goal=getGoal(curMember);
+  const pct=Math.min(100, Math.round(total/goal*100));
+  document.getElementById('sumTotal').textContent=total;
+  document.getElementById('goalBar').style.width=pct+'%';
   let praise='';
   if(total<=0) praise='과목 카드를 열어 시간을 입력해보세요!';
   else if(total>=goal) praise='최고야! 오늘 목표를 완전히 달성했어! 정말 대단해! 🏆';
   else if(total>=goal*.67) praise='잘했어! 조금만 더 하면 목표 달성이야! 화이팅! ⭐';
   else if(total>=goal*.33) praise='좋아! 오늘도 열심히 했구나! 내일도 파이팅! 😊';
   else praise='오늘은 조금 짧았지만, 내일은 더 잘할 수 있어! 💪';
-  document.getElementById('praiseMsg').textContent = praise;
+  document.getElementById('praiseMsg').textContent=praise;
   if(total>=goal && !stampShown){ stampShown=true; showStamp(total,goal); }
   if(total<goal) stampShown=false;
 }
 
 // ── 저장 ──
 function collectSessions(){
-  const result = {};
-  KIDS[curKid].subjects.forEach(s=>{
+  const result={};
+  MEMBERS[curMember].subjects.forEach(s=>{
     const sessions=[]; let i=0;
     while(document.getElementById('ses_'+s.key+'_'+i)){
       const sv=document.getElementById('sv_'+s.key+'_'+i);
@@ -464,7 +502,7 @@ function collectSessions(){
       i++;
     }
     if(!sessions.length) sessions.push({start:'',end:'',memo:'',done:false});
-    result[s.key] = sessions;
+    result[s.key]=sessions;
   });
   return result;
 }
@@ -473,18 +511,18 @@ async function saveToSheet(){
   const btn=document.getElementById('saveBtn');
   const hint=document.getElementById('saveHint');
   btn.disabled=true; btn.textContent='저장 중...';
-  const sessions = collectSessions();
+  const sessions=collectSessions();
+  const m=MEMBERS[curMember];
   // 로컬 저장
-  KIDS[curKid].subjects.forEach(s=>{ lsSet('day_'+curKid+'_'+TODAYSTR, Object.assign(lsGet('day_'+curKid+'_'+TODAYSTR)||{}, {[s.key]:sessions[s.key]})); });
-  // 스탬프 저장
+  const existing=lsGet('day_'+m.key+'_'+TODAYSTR)||{};
+  m.subjects.forEach(s=>{ existing[s.key]=sessions[s.key]; });
+  lsSet('day_'+m.key+'_'+TODAYSTR, existing);
   const total=parseInt(document.getElementById('sumTotal').textContent)||0;
-  const goal=getGoal(curKid);
-  if(total>=goal) lsSet('stamp_'+curKid+'_'+TODAYSTR,{pct:Math.round(total/goal*100),img:'🏆'});
-
+  const goal=getGoal(curMember);
+  if(total>=goal) lsSet('stamp_'+m.key+'_'+TODAYSTR,{img:'🏆'});
   const [,mo]=TODAYSTR.split('-');
   const rows=[];
-  KIDS[curKid].subjects.forEach(s=>{
-    const k=KIDS[curKid];
+  m.subjects.forEach(s=>{
     (sessions[s.key]||[]).forEach(ses=>{
       const mins=calcMin(ses.start,ses.end);
       if(ses.start||ses.end||ses.memo)
@@ -493,15 +531,11 @@ async function saveToSheet(){
   });
   if(!rows.length){ btn.disabled=false; btn.textContent='구글 시트에 저장'; hint.textContent='입력된 데이터가 없어요.'; return; }
   try{
-    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({sheetId:SHEET_ID,kid:KIDS[curKid].name,month:parseInt(mo),rows})});
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({sheetId:SHEET_ID,kid:m.name,month:parseInt(mo),rows})});
     const txt=await res.text();
     hint.textContent=txt.includes('ok')?'✓ 저장 완료! '+new Date().toLocaleTimeString():'오류가 발생했어요.';
   }catch{ hint.textContent='연결 실패. 인터넷 연결을 확인해주세요.'; }
   btn.disabled=false; btn.textContent='구글 시트에 저장';
-  // 저장 성공 시 시트에서 재로드해서 동기화
-  if(hint.textContent.includes('완료')){
-    await loadTodayFromSheet(curKid);
-  }
 }
 
 // ── 달력 ──
@@ -516,10 +550,11 @@ function renderCal(){
   });
   const first=new Date(calYear,calMonth,1).getDay();
   const days=new Date(calYear,calMonth+1,0).getDate();
+  const m=MEMBERS[curMember];
   for(let i=0;i<first;i++){ const e=document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
   for(let d=1;d<=days;d++){
     const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const day=lsGet('day_'+curKid+'_'+ds)||{};
+    const day=lsGet('day_'+m.key+'_'+ds)||{};
     let tot=0;
     Object.values(day).forEach(v=>{
       const arr=Array.isArray(v)?v:[v];
@@ -532,9 +567,11 @@ function renderCal(){
     if(tot>0) cls.push('has-data');
     if(wd===0) cls.push('sun'); if(wd===6) cls.push('sat');
     el.className=cls.join(' ');
-    if(ds===TODAYSTR){ el.style.borderColor=KIDS[curKid].color; el.style.color=KIDS[curKid].color; }
-    const stamp=lsGet('stamp_'+curKid+'_'+ds);
-    el.innerHTML='<span>'+d+'</span>'+(tot>0?'<span class="cal-min">'+tot+'분</span>':'')+(stamp?'<span class="cal-stamp">'+stamp.img+'</span>':'');
+    if(ds===TODAYSTR){ el.style.borderColor=m.color; el.style.color=m.color; }
+    const stamp=lsGet('stamp_'+m.key+'_'+ds);
+    el.innerHTML='<span>'+d+'</span>'
+      +(tot>0?'<span style="font-size:9px;color:'+m.color+';font-weight:700">'+(tot>=60?Math.floor(tot/60)+'h'+(tot%60?tot%60+'m':''):tot+'m')+'</span>':'')
+      +(stamp?'<span style="font-size:9px">'+stamp.img+'</span>':'');
     grid.appendChild(el);
   }
 }
@@ -542,23 +579,23 @@ function chMonth(d){ calMonth+=d; if(calMonth>11){calMonth=0;calYear++;} if(calM
 
 // ── 통계 ──
 function renderStats(){
-  const k=KIDS[curKid];
-  document.getElementById('statTtl').textContent=k.name+' 이번 달 과목별 공부시간';
-  document.getElementById('goalLbl').textContent=k.name+' 목표';
-  document.getElementById('goalInp').value=getGoal(curKid);
-  document.getElementById('goalSaveBtn').style.background=k.color;
+  const m=MEMBERS[curMember];
+  document.getElementById('statTtl').textContent=m.name+' 이번 달 과목별 공부시간';
+  document.getElementById('goalLbl').textContent=m.name+' 목표';
+  document.getElementById('goalInp').value=getGoal(curMember);
+  document.getElementById('goalSaveBtn').style.background=m.color;
   const y=TODAY.getFullYear(), mo=TODAY.getMonth();
   const daysInMo=new Date(y,mo+1,0).getDate();
-  const totals={};k.subjects.forEach(s=>totals[s.key]=0);
+  const totals={};m.subjects.forEach(s=>totals[s.key]=0);
   let studyDays=0,totalAll=0,goalDays=0,curStr=0,maxStr=0;
-  const goal=getGoal(curKid);
+  const goal=getGoal(curMember);
   for(let d=1;d<=daysInMo;d++){
     const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const day=lsGet('day_'+curKid+'_'+ds)||{};
+    const day=lsGet('day_'+m.key+'_'+ds)||{};
     let dt=0;
-    k.subjects.forEach(s=>{
+    m.subjects.forEach(s=>{
       const arr=Array.isArray(day[s.key])?day[s.key]:[day[s.key]];
-      arr.forEach(ses=>{ if(ses){ const m=calcMin(ses.start,ses.end); totals[s.key]+=m; dt+=m; } });
+      arr.forEach(ses=>{ if(ses){ const min=calcMin(ses.start,ses.end); totals[s.key]+=min; dt+=min; } });
     });
     if(dt>0){studyDays++;curStr++;}else{maxStr=Math.max(maxStr,curStr);curStr=0;}
     if(dt>=goal) goalDays++;
@@ -568,10 +605,10 @@ function renderStats(){
   const maxV=Math.max(...Object.values(totals),1);
   const bars=document.getElementById('statBars');
   bars.innerHTML='';
-  k.subjects.forEach(s=>{
+  m.subjects.forEach(s=>{
     const pct=Math.round(totals[s.key]/maxV*100);
-    const h=Math.floor(totals[s.key]/60),m=totals[s.key]%60;
-    const v=h>0?h+'시간'+(m?m+'분':''):totals[s.key]+'분';
+    const h=Math.floor(totals[s.key]/60),min=totals[s.key]%60;
+    const v=h>0?h+'시간'+(min?min+'분':''):totals[s.key]+'분';
     bars.innerHTML+='<div class="bar-row"><span class="bar-lbl" title="'+s.name+'">'+s.name+'</span><div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+s.color+'"></div></div><span class="bar-val">'+v+'</span></div>';
   });
   const avg=studyDays>0?Math.round(totalAll/studyDays):0;
@@ -582,14 +619,114 @@ function renderStats(){
     +'<div class="m-box"><div class="m-lbl">목표 달성일</div><div class="m-val">'+goalDays+'<span class="m-unit">일</span></div></div>';
 }
 
+// ── 가족 현황 ──
+function renderFamily(){
+  const WN=['일','월','화','수','목','금','토'];
+  const d=new Date(familyDate);
+  document.getElementById('familyDateLbl').textContent=
+    familyDate.slice(5).replace('-','/')+'('+WN[d.getDay()]+') 가족 공부 현황';
+  const wrap=document.getElementById('familyContent');
+  wrap.innerHTML='';
+  MEMBERS.forEach((m,mi)=>{
+    const day=lsGet('day_'+m.key+'_'+familyDate)||{};
+    let totalMins=0;
+    const subjData=[];
+    m.subjects.forEach(s=>{
+      const arr=Array.isArray(day[s.key])?day[s.key]:[day[s.key]];
+      let subjTotal=0; const memos=[];
+      arr.forEach(ses=>{ if(ses){ subjTotal+=calcMin(ses.start,ses.end); if(ses.memo) memos.push(ses.memo); } });
+      if(subjTotal>0) subjData.push({s,subjTotal,memos});
+      totalMins+=subjTotal;
+    });
+    const stamp=lsGet('stamp_'+m.key+'_'+familyDate);
+    let html='<div class="family-member">';
+    html+='<div class="family-member-hdr">'
+      +'<div class="family-avatar" style="background:'+m.color+'">'+m.emoji+'</div>'
+      +'<div><div class="family-name">'+m.name+(m.grade?' <span style="font-size:11px;color:var(--text3)">'+m.grade+'</span>':'')+'</div>'
+      +(stamp?'<div style="font-size:11px;color:#F9A825">🏆 목표 달성!</div>':'')
+      +'</div>'
+      +'<div class="family-total" style="color:'+m.color+'">'+(totalMins>0?fmtMin(totalMins):'')+'</div>'
+      +'</div>';
+    if(subjData.length===0){
+      html+='<div class="family-empty">오늘 공부 기록이 없어요</div>';
+    } else {
+      subjData.forEach(({s,subjTotal,memos})=>{
+        html+='<div class="family-subj-row">'
+          +'<div class="family-subj-dot" style="background:'+s.color+'"></div>'
+          +'<span class="family-subj-name">'+s.name+'</span>'
+          +'<span class="family-subj-min" style="color:'+s.color+'">'+fmtMin(subjTotal)+'</span>'
+          +'</div>';
+        if(memos.length>0){
+          html+='<div class="family-memo">'+memos.join(' / ')+'</div>';
+        }
+      });
+    }
+    html+='</div>';
+    wrap.innerHTML+=html;
+  });
+}
+
+function chFamilyDate(d){
+  const dt=new Date(familyDate);
+  dt.setDate(dt.getDate()+d);
+  familyDate=dt.toISOString().slice(0,10);
+  renderFamily();
+}
+
+async function refreshFamily(){
+  const btn=document.getElementById('familyRefreshBtn');
+  const loading=document.getElementById('familyLoading');
+  btn.disabled=true; btn.textContent='↻ 불러오는 중...';
+  loading.style.display='block';
+  document.getElementById('familyContent').innerHTML='';
+  // 해당 날짜의 월 데이터를 시트에서 새로 로드
+  const mo=parseInt(familyDate.split('-')[1]);
+  try{
+    await Promise.all(MEMBERS.map(async (m)=>{
+      try{
+        const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(m.name)+'&month='+mo;
+        const res=await fetch(url);
+        if(!res.ok) return;
+        const rows=await res.json();
+        if(!Array.isArray(rows)||!rows.length) return;
+        // 해당 날짜 행만 필터
+        const dateRows=rows.filter(r=>String(r['날짜']||'').slice(0,10)===familyDate);
+        if(!dateRows.length) return;
+        const dayData={};
+        dateRows.forEach(r=>{
+          const subjName=String(r['과목']||'').trim();
+          const subjInfo=m.subjects.find(s=>s.name===subjName);
+          if(!subjInfo) return;
+          if(!dayData[subjInfo.key]) dayData[subjInfo.key]=[];
+          dayData[subjInfo.key].push({
+            start:String(r['시작']||''),
+            end:String(r['종료']||''),
+            memo:String(r['메모']||''),
+            done:true
+          });
+        });
+        const existing=lsGet('day_'+m.key+'_'+familyDate)||{};
+        Object.keys(dayData).forEach(k=>{ existing[k]=dayData[k]; });
+        lsSet('day_'+m.key+'_'+familyDate, existing);
+      }catch(e){ console.warn(m.name+' 로드 실패:', e.message); }
+    }));
+  }finally{
+    loading.style.display='none';
+    btn.disabled=false; btn.textContent='↻ 가족 기록 새로고침';
+    btn.style.color='#2E7D32';
+    setTimeout(()=>{ btn.style.color=''; }, 1500);
+    renderFamily();
+  }
+}
+
 // ── 도장 ──
 function showStamp(total, goal){
-  const k=KIDS[curKid];
+  const m=MEMBERS[curMember];
   const pct=Math.round(total/goal*100);
   let img='🏆',title='참 잘했어요!',sub='';
-  if(pct>=100){img='🏆';title='참 잘했어요!';sub=k.name+'이 오늘 목표를 완전히 달성했어요!\n정말 대단해요! 👏';}
-  else if(pct>=67){img='⭐';title='잘했어요!';sub='조금만 더 하면 목표 달성이에요!\n내일도 화이팅! 💪';}
-  else{img='😊';title='좋았어요!';sub='오늘도 열심히 했구나!\n내일은 더 잘할 수 있어!';}
+  if(pct>=100){img='🏆';title='참 잘했어요!';sub=m.name+' 오늘 목표 완전 달성!\n정말 대단해요! 👏';}
+  else if(pct>=67){img='⭐';title='잘했어요!';sub='조금만 더 하면 목표 달성이에요!\n화이팅! 💪';}
+  else{img='😊';title='좋았어요!';sub='오늘도 열심히 했어요!\n내일은 더 잘할 수 있어!';}
   document.getElementById('stampImg').textContent=img;
   document.getElementById('stampTitle').textContent=title;
   document.getElementById('stampSub').textContent=sub;
@@ -597,61 +734,44 @@ function showStamp(total, goal){
 }
 function closeStamp(){ document.getElementById('stampOv').classList.remove('show'); }
 
-// ── 시트에서 오늘 데이터 불러오기 ──
-async function loadTodayFromSheet(ki){
+// ── 시트에서 오늘 데이터 로드 ──
+async function loadTodayFromSheet(mi){
   try{
-    const k=KIDS[ki];
+    const m=MEMBERS[mi];
     const mo=TODAY.getMonth()+1;
-    const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(k.name)+'&month='+mo;
+    const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(m.name)+'&month='+mo;
     const res=await fetch(url);
     if(!res.ok) return;
     const rows=await res.json();
-    if(!Array.isArray(rows)||rows.length===0) return;
-
-    // 오늘 날짜 행만 필터
+    if(!Array.isArray(rows)||!rows.length) return;
     const todayRows=rows.filter(r=>String(r['날짜']||'').slice(0,10)===TODAYSTR);
-    if(todayRows.length===0) return;
-
-    // 과목별로 세션 배열 구성
+    if(!todayRows.length) return;
     const dayData={};
-    todayRows.forEach(function(r){
+    todayRows.forEach(r=>{
       const subjName=String(r['과목']||'').trim();
-      // 과목명 → key 변환
-      const subjInfo=k.subjects.find(s=>s.name===subjName);
+      const subjInfo=m.subjects.find(s=>s.name===subjName);
       if(!subjInfo) return;
       if(!dayData[subjInfo.key]) dayData[subjInfo.key]=[];
-      dayData[subjInfo.key].push({
-        start:String(r['시작']||''),
-        end:String(r['종료']||''),
-        memo:String(r['메모']||''),
-        done:true
-      });
+      dayData[subjInfo.key].push({start:String(r['시작']||''),end:String(r['종료']||''),memo:String(r['메모']||''),done:true});
     });
-
-    // localStorage에 저장 (시트 데이터가 더 최신이므로 덮어쓰기)
-    const existing=lsGet('day_'+ki+'_'+TODAYSTR)||{};
-    Object.keys(dayData).forEach(function(key){
-      existing[key]=dayData[key];
-    });
-    lsSet('day_'+ki+'_'+TODAYSTR, existing);
-    console.log(k.name+' 오늘 데이터 시트에서 로드 완료:', Object.keys(dayData).length+'과목');
-  }catch(e){
-    console.warn('시트 로드 실패 (오프라인이거나 설정 오류):', e.message);
-  }
+    const existing=lsGet('day_'+m.key+'_'+TODAYSTR)||{};
+    Object.keys(dayData).forEach(k=>{ existing[k]=dayData[k]; });
+    lsSet('day_'+m.key+'_'+TODAYSTR, existing);
+  }catch(e){ console.warn('시트 로드 실패:', e.message); }
 }
 
 // ── 초기화 ──
 const WN=['일','월','화','수','목','금','토'];
 document.getElementById('hdrDate').textContent=TODAY.getFullYear()+'년 '+(TODAY.getMonth()+1)+'월 '+TODAY.getDate()+'일 ('+WN[TODAY.getDay()]+')';
+buildMemberGrid();
 applyTheme();
 
-// 시트에서 오늘 데이터 불러온 후 카드 빌드
 (async function(){
-  // 로딩 표시
   document.getElementById('saveHint').textContent='오늘 데이터 불러오는 중...';
-  await Promise.all([loadTodayFromSheet(0), loadTodayFromSheet(1)]);
+  await Promise.all(MEMBERS.map((_,i)=>loadTodayFromSheet(i)));
   document.getElementById('saveHint').textContent='';
   buildCards();
+  renderFamily();
 })();
 </script>
 </body>
