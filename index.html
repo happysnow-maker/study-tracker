@@ -136,6 +136,27 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .stamp-title{font-size:20px;font-weight:700;margin-bottom:6px}
 .stamp-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;white-space:pre-line}
 .stamp-close{width:100%;padding:12px;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* 날짜 클릭 팝업 */
+.day-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s}
+.day-overlay.show{opacity:1;pointer-events:all}
+.day-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:78vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.day-overlay.show .day-sheet{transform:translateY(0)}
+.day-sheet-title{font-size:16px;font-weight:700;margin-bottom:2px}
+.day-sheet-sub{font-size:12px;color:var(--text3);margin-bottom:14px}
+.day-member-sec{margin-bottom:12px}
+.day-member-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.day-member-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex-shrink:0}
+.day-member-name{font-size:14px;font-weight:700}
+.day-member-total{margin-left:auto;font-size:14px;font-weight:700}
+.day-subj-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.day-subj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.day-subj-info{flex:1}
+.day-subj-name{font-size:13px;font-weight:600;color:var(--text)}
+.day-subj-time{font-size:11px;color:var(--text3)}
+.day-subj-memo{font-size:12px;color:var(--text2);margin-top:2px;font-style:italic}
+.day-empty{font-size:13px;color:var(--text3);padding:8px 0}
+.day-close{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px}
 </style>
 </head>
 <body>
@@ -542,6 +563,16 @@ async function saveToSheet(){
 }
 
 // ── 달력 ──
+function getDayTotal(mi, ds){
+  const day=lsGet('day_'+MEMBERS[mi].key+'_'+ds)||{};
+  let tot=0;
+  Object.values(day).forEach(v=>{
+    const arr=Array.isArray(v)?v:[v];
+    arr.forEach(ses=>{ if(ses) tot+=calcMin(ses.start,ses.end); });
+  });
+  return tot;
+}
+
 function renderCal(){
   document.getElementById('calTitle').textContent=calYear+'년 '+(calMonth+1)+'월';
   const grid=document.getElementById('calGrid');
@@ -557,32 +588,87 @@ function renderCal(){
   for(let i=0;i<first;i++){ const e=document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
   for(let d=1;d<=days;d++){
     const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const day=lsGet('day_'+m.key+'_'+ds)||{};
-    let tot=0;
-    Object.values(day).forEach(v=>{
-      const arr=Array.isArray(v)?v:[v];
-      arr.forEach(ses=>{ if(ses) tot+=calcMin(ses.start,ses.end); });
-    });
+    // 현재 멤버 데이터
+    const myTot=getDayTotal(curMember, ds);
+    // 전체 멤버 데이터
+    const allTots=MEMBERS.map((_,i)=>getDayTotal(i,ds));
+    const anyStudy=allTots.some(t=>t>0);
     const wd=new Date(calYear,calMonth,d).getDay();
     const el=document.createElement('div');
     const cls=['cal-day'];
-    if(ds===TODAYSTR){ cls.push('today'); }
-    if(tot>0) cls.push('has-data');
+    if(ds===TODAYSTR) cls.push('today');
+    if(myTot>0) cls.push('has-data');
     if(wd===0) cls.push('sun'); if(wd===6) cls.push('sat');
     el.className=cls.join(' ');
     if(ds===TODAYSTR){ el.style.borderColor=m.color; el.style.color=m.color; }
     const stamp=lsGet('stamp_'+m.key+'_'+ds);
-    el.innerHTML='<span>'+d+'</span>'
-      +(tot>0?'<span style="font-size:9px;color:'+m.color+';font-weight:700">'+(tot>=60?Math.floor(tot/60)+'h'+(tot%60?tot%60+'m':''):tot+'m')+'</span>':'')
-      +(stamp?'<span style="font-size:9px">'+stamp.img+'</span>':'');
+    // 4명 점 표시
+    const dots=MEMBERS.map((mb,i)=>allTots[i]>0
+      ?'<div style="width:4px;height:4px;border-radius:50%;background:'+mb.color+'"></div>':''
+    ).join('');
+    const dotsHtml=anyStudy?'<div style="display:flex;gap:1px;justify-content:center">'+dots+'</div>':'';
+    // 본인 시간 표시
+    const timeHtml=myTot>0?'<span style="font-size:9px;color:'+m.color+';font-weight:700">'
+      +(myTot>=60?Math.floor(myTot/60)+'h'+(myTot%60?myTot%60+'m':''):myTot+'m')+'</span>':'';
+    el.innerHTML='<span>'+d+'</span>'+timeHtml+dotsHtml+(stamp?'<span style="font-size:9px">'+stamp.img+'</span>':'');
+    // 클릭 시 팝업
+    if(anyStudy){
+      el.style.cursor='pointer';
+      el.onclick=(function(ds){ return function(){ showDayPopup(ds); }; })(ds);
+    }
     grid.appendChild(el);
   }
 }
+
+function showDayPopup(ds){
+  const WN=['일','월','화','수','목','금','토'];
+  const wd=new Date(ds).getDay();
+  document.getElementById('dayPopupTitle').textContent=ds.slice(5).replace('-','/')+'('+WN[wd]+') 가족 공부 기록';
+  let html='';
+  MEMBERS.forEach((m,mi)=>{
+    const day=lsGet('day_'+m.key+'_'+ds)||{};
+    let totalMins=0;
+    const subjData=[];
+    m.subjects.forEach(s=>{
+      const arr=Array.isArray(day[s.key])?day[s.key]:[day[s.key]];
+      let subjTotal=0; const sessions=[];
+      arr.forEach(ses=>{ if(ses&&(ses.start||ses.end||ses.memo)){ subjTotal+=calcMin(ses.start,ses.end); sessions.push(ses); } });
+      if(subjTotal>0||sessions.some(s=>s.memo)) subjData.push({s,subjTotal,sessions});
+      totalMins+=subjTotal;
+    });
+    if(totalMins===0&&subjData.length===0) return;
+    html+='<div class="day-member-sec">'
+      +'<div class="day-member-hdr">'
+        +'<div class="day-member-avatar" style="background:'+m.color+'">'+m.emoji+'</div>'
+        +'<span class="day-member-name">'+m.name+'</span>'
+        +'<span class="day-member-total" style="color:'+m.color+'">'+fmtMin(totalMins)+'</span>'
+      +'</div>';
+    subjData.forEach(({s,subjTotal,sessions})=>{
+      sessions.forEach(ses=>{
+        const mins=calcMin(ses.start,ses.end);
+        html+='<div class="day-subj-row">'
+          +'<div class="day-subj-dot" style="background:'+s.color+'"></div>'
+          +'<div class="day-subj-info">'
+            +'<div class="day-subj-name">'+s.name+(mins>0?' <span style="color:'+s.color+';font-size:12px">'+mins+'분</span>':'')+'</div>'
+            +(ses.start?'<div class="day-subj-time">'+ses.start+(ses.end?'~'+ses.end:'')+'</div>':'')
+            +(ses.memo?'<div class="day-subj-memo">'+ses.memo+'</div>':'')
+          +'</div>'
+        +'</div>';
+      });
+    });
+    html+='</div>';
+  });
+  if(!html) html='<div class="day-empty">공부 기록이 없어요</div>';
+  document.getElementById('dayPopupContent').innerHTML=html;
+  document.getElementById('dayOverlay').classList.add('show');
+}
+
+function closeDayPopup(){ document.getElementById('dayOverlay').classList.remove('show'); }
+
 function chMonth(d){
   calMonth+=d;
   if(calMonth>11){calMonth=0;calYear++;}
   if(calMonth<0){calMonth=11;calYear--;}
-  // 해당 월 데이터 시트에서 로드 후 달력 렌더
   const mo=calMonth+1;
   Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i,mo))).then(()=>renderCal());
 }
@@ -627,6 +713,45 @@ function renderStats(){
     +'<div class="m-box"><div class="m-lbl">하루 평균</div><div class="m-val">'+avg+'<span class="m-unit">분</span></div></div>'
     +'<div class="m-box"><div class="m-lbl">이번 달 총합</div><div class="m-val">'+totalAll+'<span class="m-unit">분</span></div></div>'
     +'<div class="m-box"><div class="m-lbl">목표 달성일</div><div class="m-val">'+goalDays+'<span class="m-unit">일</span></div></div>';
+
+  // 가족 비교 막대 그래프
+  const famTotals=MEMBERS.map((mb,i)=>{
+    const y2=TODAY.getFullYear(),mo2=TODAY.getMonth();
+    const days2=new Date(y2,mo2+1,0).getDate();
+    let t=0;
+    for(let dd=1;dd<=days2;dd++){
+      const ds=y2+'-'+String(mo2+1).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+      const day=lsGet('day_'+mb.key+'_'+ds)||{};
+      mb.subjects.forEach(s=>{
+        const arr=Array.isArray(day[s.key])?day[s.key]:[day[s.key]];
+        arr.forEach(ses=>{ if(ses) t+=calcMin(ses.start,ses.end); });
+      });
+    }
+    return t;
+  });
+  const maxFam=Math.max(...famTotals,1);
+  let famHtml='';
+  MEMBERS.forEach((mb,i)=>{
+    const pct=Math.round(famTotals[i]/maxFam*100);
+    const h=Math.floor(famTotals[i]/60),min=famTotals[i]%60;
+    const vStr=h>0?h+'시간'+(min?min+'분':''):famTotals[i]+'분';
+    famHtml+='<div class="bar-row">'
+      +'<span style="font-size:13px;width:52px;flex-shrink:0;display:flex;align-items:center;gap:4px">'
+        +mb.emoji+' <span style="color:'+mb.color+';font-weight:600">'+mb.name+'</span>'
+      +'</span>'
+      +'<div class="bar-bg"><div class="bar-fill" style="width:'+pct+'%;background:'+mb.color+'"></div></div>'
+      +'<span class="bar-val">'+vStr+'</span>'
+    +'</div>';
+  });
+  // 가족 비교 카드가 없으면 추가
+  let famCard=document.getElementById('famCompareCard');
+  if(!famCard){
+    famCard=document.createElement('div');
+    famCard.id='famCompareCard';
+    famCard.className='stat-card';
+    document.getElementById('page2').appendChild(famCard);
+  }
+  famCard.innerHTML='<div class="stat-ttl">👨‍👩‍👧‍👦 이번 달 가족 비교</div>'+famHtml;
 }
 
 // ── 가족 현황 ──
@@ -775,5 +900,15 @@ applyTheme();
   renderFamily();
 })();
 </script>
+
+<div class="day-overlay" id="dayOverlay" onclick="if(event.target===this)closeDayPopup()">
+  <div class="day-sheet">
+    <div class="day-sheet-title" id="dayPopupTitle"></div>
+    <div class="day-sheet-sub">가족 공부 기록</div>
+    <div id="dayPopupContent"></div>
+    <button class="day-close" onclick="closeDayPopup()">닫기</button>
+  </div>
+</div>
+
 </body>
 </html>
