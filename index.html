@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>가족 학습 체크표</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
@@ -204,7 +207,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
   <button id="familyRefreshBtn" onclick="refreshFamily()"
     style="width:100%;padding:11px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text2);margin-bottom:12px">
-    ↻ 가족 기록 새로고침
+    ↻ 이번 달 전체 새로고침
   </button>
   <div id="familyLoading" style="display:none;text-align:center;padding:16px;font-size:13px;color:var(--text3)">불러오는 중...</div>
   <div id="familyContent"></div>
@@ -575,7 +578,14 @@ function renderCal(){
     grid.appendChild(el);
   }
 }
-function chMonth(d){ calMonth+=d; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCal(); }
+function chMonth(d){
+  calMonth+=d;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  // 해당 월 데이터 시트에서 로드 후 달력 렌더
+  const mo=calMonth+1;
+  Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i,mo))).then(()=>renderCal());
+}
 
 // ── 통계 ──
 function renderStats(){
@@ -682,34 +692,7 @@ async function refreshFamily(){
   // 해당 날짜의 월 데이터를 시트에서 새로 로드
   const mo=parseInt(familyDate.split('-')[1]);
   try{
-    await Promise.all(MEMBERS.map(async (m)=>{
-      try{
-        const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(m.name)+'&month='+mo;
-        const res=await fetch(url);
-        if(!res.ok) return;
-        const rows=await res.json();
-        if(!Array.isArray(rows)||!rows.length) return;
-        // 해당 날짜 행만 필터
-        const dateRows=rows.filter(r=>String(r['날짜']||'').slice(0,10)===familyDate);
-        if(!dateRows.length) return;
-        const dayData={};
-        dateRows.forEach(r=>{
-          const subjName=String(r['과목']||'').trim();
-          const subjInfo=m.subjects.find(s=>s.name===subjName);
-          if(!subjInfo) return;
-          if(!dayData[subjInfo.key]) dayData[subjInfo.key]=[];
-          dayData[subjInfo.key].push({
-            start:String(r['시작']||''),
-            end:String(r['종료']||''),
-            memo:String(r['메모']||''),
-            done:true
-          });
-        });
-        const existing=lsGet('day_'+m.key+'_'+familyDate)||{};
-        Object.keys(dayData).forEach(k=>{ existing[k]=dayData[k]; });
-        lsSet('day_'+m.key+'_'+familyDate, existing);
-      }catch(e){ console.warn(m.name+' 로드 실패:', e.message); }
-    }));
+    await Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i, mo)));
   }finally{
     loading.style.display='none';
     btn.disabled=false; btn.textContent='↻ 가족 기록 새로고침';
@@ -734,30 +717,48 @@ function showStamp(total, goal){
 }
 function closeStamp(){ document.getElementById('stampOv').classList.remove('show'); }
 
-// ── 시트에서 오늘 데이터 로드 ──
-async function loadTodayFromSheet(mi){
+// ── 시트에서 이번 달 전체 데이터 로드 ──
+async function loadMonthFromSheet(mi, month){
   try{
     const m=MEMBERS[mi];
-    const mo=TODAY.getMonth()+1;
+    const mo=month||TODAY.getMonth()+1;
     const url=SCRIPT_URL+'?sheetId='+SHEET_ID+'&kid='+encodeURIComponent(m.name)+'&month='+mo;
     const res=await fetch(url);
     if(!res.ok) return;
     const rows=await res.json();
     if(!Array.isArray(rows)||!rows.length) return;
-    const todayRows=rows.filter(r=>String(r['날짜']||'').slice(0,10)===TODAYSTR);
-    if(!todayRows.length) return;
-    const dayData={};
-    todayRows.forEach(r=>{
+    // 날짜별로 그룹화
+    const byDate={};
+    rows.forEach(r=>{
+      const ds=String(r['날짜']||'').slice(0,10);
+      if(!ds||ds.length<10) return;
+      if(!byDate[ds]) byDate[ds]={};
       const subjName=String(r['과목']||'').trim();
       const subjInfo=m.subjects.find(s=>s.name===subjName);
       if(!subjInfo) return;
-      if(!dayData[subjInfo.key]) dayData[subjInfo.key]=[];
-      dayData[subjInfo.key].push({start:String(r['시작']||''),end:String(r['종료']||''),memo:String(r['메모']||''),done:true});
+      if(!byDate[ds][subjInfo.key]) byDate[ds][subjInfo.key]=[];
+      byDate[ds][subjInfo.key].push({
+        start:String(r['시작']||''),
+        end:String(r['종료']||''),
+        memo:String(r['메모']||''),
+        done:true
+      });
     });
-    const existing=lsGet('day_'+m.key+'_'+TODAYSTR)||{};
-    Object.keys(dayData).forEach(k=>{ existing[k]=dayData[k]; });
-    lsSet('day_'+m.key+'_'+TODAYSTR, existing);
-  }catch(e){ console.warn('시트 로드 실패:', e.message); }
+    // 날짜별로 localStorage에 저장
+    Object.keys(byDate).forEach(ds=>{
+      const existing=lsGet('day_'+m.key+'_'+ds)||{};
+      Object.keys(byDate[ds]).forEach(k=>{ existing[k]=byDate[ds][k]; });
+      lsSet('day_'+m.key+'_'+ds, existing);
+      // 목표 달성 스탬프 체크
+      const goal=getGoal(mi);
+      let total=0;
+      Object.values(byDate[ds]).forEach(sessions=>{
+        sessions.forEach(ses=>{ total+=calcMin(ses.start,ses.end); });
+      });
+      if(total>=goal) lsSet('stamp_'+m.key+'_'+ds,{img:'🏆'});
+    });
+    console.log(m.name+' '+mo+'월 데이터 로드 완료: '+Object.keys(byDate).length+'일치');
+  }catch(e){ console.warn(m.name+' 시트 로드 실패:', e.message); }
 }
 
 // ── 초기화 ──
@@ -768,7 +769,7 @@ applyTheme();
 
 (async function(){
   document.getElementById('saveHint').textContent='오늘 데이터 불러오는 중...';
-  await Promise.all(MEMBERS.map((_,i)=>loadTodayFromSheet(i)));
+  await Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i)));
   document.getElementById('saveHint').textContent='';
   buildCards();
   renderFamily();
