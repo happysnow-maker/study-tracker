@@ -248,7 +248,7 @@ const SHEET_ID = '18k-eTGSxJrered7NpY-g8U5-pevH67Ccficdbtnu7IY';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoRXsoefHfPlR3KWSji7HJ2WZKK-uQbZDP0qX1n3GHRG6SpoOsa-BEludyDrr0KxDTWQ/exec';
 
 const MEMBERS = [
-  { key:'hanbul', name:'한별', grade:'중1', emoji:'👧', color:'#1A237E', light:'#E8EAF6',
+  { key:'hanbul', name:'한별', grade:'중1', emoji:'👱‍♀️', color:'#1A237E', light:'#E8EAF6',
     goal:120, subjects:[
       {key:'math',name:'수학',color:'#1565C0'},
       {key:'eng', name:'영어',color:'#2E7D32'},
@@ -256,8 +256,9 @@ const MEMBERS = [
       {key:'soc', name:'사회',color:'#4527A0'},
       {key:'sci', name:'과학',color:'#B71C1C'},
       {key:'book',name:'독서(신문,독서평설 포함)',color:'#00695C'},
+      {key:'spa', name:'스페인어',color:'#F57F17'},
     ]},
-  { key:'hansol', name:'한솔', grade:'초3', emoji:'👦', color:'#1B5E20', light:'#E8F5E9',
+  { key:'hansol', name:'한솔', grade:'초3', emoji:'👧🏻', color:'#1B5E20', light:'#E8F5E9',
     goal:60, subjects:[
       {key:'math',name:'수학',color:'#1565C0'},
       {key:'eng', name:'영어',color:'#2E7D32'},
@@ -870,17 +871,27 @@ async function loadMonthFromSheet(mi, month){
       });
     });
     // 날짜별로 localStorage에 저장
+    // 오늘 날짜는 로컬 우선 (입력 중인 데이터 보호), 이전 날짜는 시트 우선
     Object.keys(byDate).forEach(ds=>{
       const existing=lsGet('day_'+m.key+'_'+ds)||{};
-      Object.keys(byDate[ds]).forEach(k=>{ existing[k]=byDate[ds][k]; });
+      if(ds===TODAYSTR){
+        // 오늘: 로컬에 값이 없는 과목만 시트에서 채움
+        Object.keys(byDate[ds]).forEach(k=>{
+          const local=existing[k];
+          const isEmpty=!local||(Array.isArray(local)&&local.every(s=>!s.start&&!s.end&&!s.memo));
+          if(isEmpty) existing[k]=byDate[ds][k];
+        });
+      } else {
+        // 이전 날짜: 시트 데이터로 덮어쓰기
+        Object.keys(byDate[ds]).forEach(k=>{ existing[k]=byDate[ds][k]; });
+        const goal=getGoal(mi);
+        let total=0;
+        Object.values(byDate[ds]).forEach(sessions=>{
+          sessions.forEach(ses=>{ total+=calcMin(ses.start,ses.end); });
+        });
+        if(total>=goal) lsSet('stamp_'+m.key+'_'+ds,{img:'🏆'});
+      }
       lsSet('day_'+m.key+'_'+ds, existing);
-      // 목표 달성 스탬프 체크
-      const goal=getGoal(mi);
-      let total=0;
-      Object.values(byDate[ds]).forEach(sessions=>{
-        sessions.forEach(ses=>{ total+=calcMin(ses.start,ses.end); });
-      });
-      if(total>=goal) lsSet('stamp_'+m.key+'_'+ds,{img:'🏆'});
     });
     console.log(m.name+' '+mo+'월 데이터 로드 완료: '+Object.keys(byDate).length+'일치');
   }catch(e){ console.warn(m.name+' 시트 로드 실패:', e.message); }
