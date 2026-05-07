@@ -904,7 +904,18 @@ buildMemberGrid();
 applyTheme();
 
 (async function(){
-  document.getElementById('saveHint').textContent='오늘 데이터 불러오는 중...';
+  // 날짜가 바뀌었으면 오늘 데이터 초기화
+  const lastOpenDate = lsGet('lastOpenDate');
+  if(lastOpenDate !== TODAYSTR){
+    // 오늘 날짜 데이터 초기화 (어제 데이터가 오늘로 보이는 것 방지)
+    MEMBERS.forEach(m=>{
+      lsSet('day_'+m.key+'_'+TODAYSTR, {});
+    });
+    lsSet('lastOpenDate', TODAYSTR);
+    console.log('날짜 변경 감지 - 오늘 데이터 초기화');
+  }
+
+  document.getElementById('saveHint').textContent='데이터 불러오는 중...';
   await Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i)));
   document.getElementById('saveHint').textContent='';
   buildCards();
