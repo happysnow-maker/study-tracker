@@ -303,6 +303,16 @@ function saveGoal(){
 }
 
 function getSessions(mi, dateStr, subjKey){
+  // 오늘 데이터 요청 시 저장된 날짜 검증
+  if(dateStr === TODAYSTR){
+    const savedDate = lsGet('todayDate_'+MEMBERS[mi].key);
+    if(savedDate !== TODAYSTR){
+      // 날짜가 바뀌었으면 오늘 데이터 초기화
+      lsSet('todayDate_'+MEMBERS[mi].key, TODAYSTR);
+      lsSet('day_'+MEMBERS[mi].key+'_'+TODAYSTR, {});
+      return [{start:'',end:'',memo:'',done:false}];
+    }
+  }
   const day = lsGet('day_'+MEMBERS[mi].key+'_'+dateStr) || {};
   const val = day[subjKey];
   if(!val) return [{start:'',end:'',memo:'',done:false}];
@@ -538,7 +548,8 @@ async function saveToSheet(){
   btn.disabled=true; btn.textContent='저장 중...';
   const sessions=collectSessions();
   const m=MEMBERS[curMember];
-  // 로컬 저장
+  // 로컬 저장 (오늘 날짜 메타 함께 저장)
+  lsSet('todayDate_'+m.key, TODAYSTR);
   const existing=lsGet('day_'+m.key+'_'+TODAYSTR)||{};
   m.subjects.forEach(s=>{ existing[s.key]=sessions[s.key]; });
   lsSet('day_'+m.key+'_'+TODAYSTR, existing);
@@ -871,27 +882,18 @@ async function loadMonthFromSheet(mi, month){
       });
     });
     // 날짜별로 localStorage에 저장
-    // 오늘 날짜는 로컬 우선 (입력 중인 데이터 보호), 이전 날짜는 시트 우선
+    // 오늘 날짜는 절대 건드리지 않음 - 이전 날짜만 시트 데이터로 저장
     Object.keys(byDate).forEach(ds=>{
+      if(ds === TODAYSTR) return; // 오늘은 완전히 무시
       const existing=lsGet('day_'+m.key+'_'+ds)||{};
-      if(ds===TODAYSTR){
-        // 오늘: 로컬에 값이 없는 과목만 시트에서 채움
-        Object.keys(byDate[ds]).forEach(k=>{
-          const local=existing[k];
-          const isEmpty=!local||(Array.isArray(local)&&local.every(s=>!s.start&&!s.end&&!s.memo));
-          if(isEmpty) existing[k]=byDate[ds][k];
-        });
-      } else {
-        // 이전 날짜: 시트 데이터로 덮어쓰기
-        Object.keys(byDate[ds]).forEach(k=>{ existing[k]=byDate[ds][k]; });
-        const goal=getGoal(mi);
-        let total=0;
-        Object.values(byDate[ds]).forEach(sessions=>{
-          sessions.forEach(ses=>{ total+=calcMin(ses.start,ses.end); });
-        });
-        if(total>=goal) lsSet('stamp_'+m.key+'_'+ds,{img:'🏆'});
-      }
+      Object.keys(byDate[ds]).forEach(k=>{ existing[k]=byDate[ds][k]; });
       lsSet('day_'+m.key+'_'+ds, existing);
+      const goal=getGoal(mi);
+      let total=0;
+      Object.values(byDate[ds]).forEach(sessions=>{
+        sessions.forEach(ses=>{ total+=calcMin(ses.start,ses.end); });
+      });
+      if(total>=goal) lsSet('stamp_'+m.key+'_'+ds,{img:'🏆'});
     });
     console.log(m.name+' '+mo+'월 데이터 로드 완료: '+Object.keys(byDate).length+'일치');
   }catch(e){ console.warn(m.name+' 시트 로드 실패:', e.message); }
@@ -904,18 +906,7 @@ buildMemberGrid();
 applyTheme();
 
 (async function(){
-  // 날짜가 바뀌었으면 오늘 데이터 초기화
-  const lastOpenDate = lsGet('lastOpenDate');
-  if(lastOpenDate !== TODAYSTR){
-    // 오늘 날짜 데이터 초기화 (어제 데이터가 오늘로 보이는 것 방지)
-    MEMBERS.forEach(m=>{
-      lsSet('day_'+m.key+'_'+TODAYSTR, {});
-    });
-    lsSet('lastOpenDate', TODAYSTR);
-    console.log('날짜 변경 감지 - 오늘 데이터 초기화');
-  }
-
-  document.getElementById('saveHint').textContent='데이터 불러오는 중...';
+  document.getElementById('saveHint').textContent='오늘 데이터 불러오는 중...';
   await Promise.all(MEMBERS.map((_,i)=>loadMonthFromSheet(i)));
   document.getElementById('saveHint').textContent='';
   buildCards();
